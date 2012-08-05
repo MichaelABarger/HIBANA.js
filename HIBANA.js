@@ -57,7 +57,7 @@ HIBANA.prototype = {
 		parameters.particle_count = parameters.particle_count || 100;
 		parameters.particle_color = parameters.particle_color || new THREE.Color( 0xFFFFFF );
 		parameters.rate = parameters.rate || 50;
-		parameters.acceleration = parameters.acceleration || new THREE.Vector3( 0, 5, 0 );
+		parameters.acceleration = parameters.acceleration || new THREE.Vector3( 0, 1, 0 );
 		parameters.particle_life_expectancy_min = parameters.particle_life_expectancy_min || 5;
 		parameters.particle_life_expectancy_range = parameters.particle_life_expectancy_range || 30;
 		
@@ -113,7 +113,7 @@ HIBANA.prototype = {
 				
 				new_particle.vertex = emitter.geometry.vertices[ emitter.next_particle ];
 				new_particle.color = emitter.geometry.colors[ emitter.next_particle ];
-				new_particle.vertex.position = new THREE.Vector3().copy( emitter.starting_position[ emitter.next_particle ] );
+				new_particle.vertex.copy( emitter.starting_position[ emitter.next_particle ] );
 				new_particle.age = 0;
 				new_particle.life_expectancy = emitter.particle_life_expectancy_min + Math.random() * emitter.particle_life_expectancy_range;
 				new_particle.velocity = new THREE.Vector3().copy( emitter.acceleration );
@@ -131,9 +131,9 @@ HIBANA.prototype = {
 		for ( e in this.emitters ) {
 			__generateParticles( this.emitters[e] );
 			for ( p in this.emitters[e].active_particles ) {
-				if ( ++this.emitters[e].active_particles[p].age > this.emitters[e].active_particles[p].lifeExpectancy ) {
-					this.emitters[e].active_particles[p].position.copy( this.hidden_point );
-					this.emitters[e].active_particles[p].color = this.emitters[e].original_color;
+				if ( ++this.emitters[e].active_particles[p].age > this.emitters[e].active_particles[p].life_expectancy ) {
+					this.emitters[e].active_particles[p].vertex.copy( this.hidden_point );
+					this.emitters[e].active_particles[p].color.copy( this.emitters[e].original_color );
 					this.emitters[e].active_particles.splice( p, 1 );
 				} else {
 					// position/velocity change
@@ -142,7 +142,7 @@ HIBANA.prototype = {
 					emitter.active_particles[p].velocity.y -= PARTICLE_GRAVITY;
 					emitter.active_particles[p].velocity.z += PARTICLE_DRIFT_OFFSET - PARTICLE_DRIFT * Math.random();
 					*/
-					this.emitters[e].active_particles[p].vertex.position.addSelf( this.emitters[e].active_particles[p].velocity );
+					this.emitters[e].active_particles[p].vertex.addSelf( this.emitters[e].active_particles[p].velocity );
 					
 					// color change
 					/*
