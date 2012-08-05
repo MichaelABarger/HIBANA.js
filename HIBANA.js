@@ -15,9 +15,11 @@ this.hidden_point = hidden_point || DEFAULT_HIDDEN_POINT;
 this.particles_playing = false;
 this.emitters = [];
 
-this.material = __initialize_material();
+this.paused = true;
 
-	function __initialize_material() {
+this.material = __initialize_material( PARTICLE_SIZE );
+
+	function __initialize_material( particle_size ) {
 		var canvas = document.createElement( 'canvas' );
 		canvas.width = 16;
 		canvas.height = 16;
@@ -35,7 +37,7 @@ this.material = __initialize_material();
 		var texture = new THREE.Texture( canvas );
 		texture.needsUpdate = true;
 		
-		return new THREE.ParticleBasicMaterial( { 	size: PARTICLE_SIZE,
+		return new THREE.ParticleBasicMaterial( { 	size: particle_size,
 													color: 0xEEEEEE,
 													map: texture,
 													blending: THREE.AdditiveBlending,
@@ -57,6 +59,8 @@ HIBANA.prototype = {
 		parameters.particle_color = parameters.particle_color || new THREE.Color( 0xFFFFFF );
 		parameters.rate = parameters.rate || 50;
 		parameters.acceleration = parameters.acceleration || new THREE.Vector3( 0, 5, 0 );
+		parameters.particle_life_expectancy_min = parameters.particle_life_expectancy_min || 5;
+		parameters.particle_life_expectancy_range = parameters.particle_life_expectancy_range || 30;
 		
 		var emitter = {};
 		emitter.geometry = new THREE.Geometry();
@@ -64,13 +68,13 @@ HIBANA.prototype = {
 		emitter.original_color = new THREE.Color().copy( parameters.particle_color );
 		
 		emitter.geometry.colors = [];
-		for ( var i = 0; i < particle_count; i++ ) {
+		for ( var i = 0; i < parameters.particle_count; i++ ) {
 			emitter.geometry.vertices.push( new THREE.Vector3().copy( this.hidden_point ) );
 			emitter.geometry.colors.push( new THREE.Color().copy( emitter.original_color ) );
 		}
 		emitter.geometry.dynamic = true;
 		
-		emitter.system = new THREE.ParticleSystem( emitter.geometry, particle_mat );
+		emitter.system = new THREE.ParticleSystem( emitter.geometry, this.material );
 		emitter.system.position.set( parameters.geometry.position );
 		emitter.system.sortParticles = true;
 		/*
@@ -90,8 +94,7 @@ HIBANA.prototype = {
 		return this;
 	},
 
-
-
+	
 	__generateParticles: function( emitter ) {
 		var r = 100 * Math.random();
 		for ( var i = 0; i < Math.floor( r / (100.0 - emitter.rate)); i++ ) {
@@ -101,8 +104,8 @@ HIBANA.prototype = {
 			new_particle.color = emitter.geometry.colors[ emitter.next_particle ];
 			new_particle.vertex.position = new THREE.Vector3().copy( emitter.starting_position[ emitter.next_particle ] );
 			new_particle.age = 0;
-			new_particle.life_expectancy = emitter.particle_expectancy_min + Math.random() * emitter.particle_expectancy_range;
-			new_particle.velocity = new THREE.Vector3( 0, emitter.acceleration * new_particle.life_expectancy / emitter.particle_expectancy_range, 0 );
+			new_particle.life_expectancy = emitter.particle_life_expectancy_min + Math.random() * emitter.particle_life_expectancy_range;
+			new_particle.velocity = new THREE.Vector3().copy( emitter.acceleration );
 			
 			emitter.particles.push( new_particle );
 			
@@ -112,42 +115,46 @@ HIBANA.prototype = {
 		
 		return this;
 	},
+	
 
+	age: function() {
+		if ( this.paused ) return this;
+		
+		for ( e in emitters ) {
+			__generateParticles( emitters[e] );
+			for ( p in emitters[e].particles ) {
+				if ( ++emitters[e].particles[p].age > emitters[e].particles[p].lifeExpectancy ) {
+					emitters[e].particles[p].position.copy( this.hidden_point );
+					emitters[e].particles[p].color = emitter.original_color;
+					emitters[e].particles.splice( p, 1 );
+				} else {
+					// position/velocity change
+					/*
+					emitter.particles[p].velocity.x += PARTICLE_DRIFT_OFFSET - PARTICLE_DRIFT * Math.random();
+					emitter.particles[p].velocity.y -= PARTICLE_GRAVITY;
+					emitter.particles[p].velocity.z += PARTICLE_DRIFT_OFFSET - PARTICLE_DRIFT * Math.random();
+					*/
+					emitters[e].particles[p].vertex.addSelf( emitters[e].particles[p].velocity );
+					
+					// color change
+					/*
+					var timeRemaining = emitter.particles[p].lifeExpectancy - emitter.particles[p].age;
 
-
-	age: function( emitter ) {
-		for ( p in emitter.particles ) {
-			if ( ++emitter.particles[p].age > emitter.particles[p].lifeExpectancy ) {
-				emitter.particles[p].vertex.x = emitter.particles[p].init_pos.x;
-				emitter.particles[p].vertex.y = emitter.particles[p].init_pos.y;
-				emitter.particles[p].vertex.z = emitter.particles[p].init_pos.z;
-				emitter.particles[p].color = emitter.color;
-				emitter.particles.splice( p, 1 );
-			} else {
-				// position/velocity change
-				emitter.particles[p].velocity.x += PARTICLE_DRIFT_OFFSET - PARTICLE_DRIFT * Math.random();
-				emitter.particles[p].velocity.y -= PARTICLE_GRAVITY;
-				emitter.particles[p].velocity.z += PARTICLE_DRIFT_OFFSET - PARTICLE_DRIFT * Math.random();
-				
-				emitter.particles[p].vertex.x += emitter.particles[p].velocity.x;
-				emitter.particles[p].vertex.y += emitter.particles[p].velocity.y;
-				emitter.particles[p].vertex.z += emitter.particles[p].velocity.z;
-				
-				// color change
-				var timeRemaining = emitter.particles[p].lifeExpectancy - emitter.particles[p].age;
-
-				if ( emitter.particles[p].age <= FIRST_FEW_TICKS ) {
-					emitter.particles[p].color.r -= emitter.firstfew.r;
-					emitter.particles[p].color.g -= emitter.firstfew.g;
-					emitter.particles[p].color.b -= emitter.firstfew.b;
-				} else if ( timeRemaining <= LAST_FEW_TICKS ) {
-					emitter.particles[p].color.r -= emitter.lastfew.r;
-					emitter.particles[p].color.g -= emitter.lastfew.g;
-					emitter.particles[p].color.b -= emitter.lastfew.b;
+					if ( emitter.particles[p].age <= FIRST_FEW_TICKS ) {
+						emitter.particles[p].color.r -= emitter.firstfew.r;
+						emitter.particles[p].color.g -= emitter.firstfew.g;
+						emitter.particles[p].color.b -= emitter.firstfew.b;
+					} else if ( timeRemaining <= LAST_FEW_TICKS ) {
+						emitter.particles[p].color.r -= emitter.lastfew.r;
+						emitter.particles[p].color.g -= emitter.lastfew.g;
+						emitter.particles[p].color.b -= emitter.lastfew.b;
+					}
+					*/
 				}
 			}
-		}
-		
+			emitters[e].geometry.verticesNeedUpdate = true;
+			emitters[e].geometry.colorsNeedUpdate = false;
+		}	
 		return this;
 	}
 }

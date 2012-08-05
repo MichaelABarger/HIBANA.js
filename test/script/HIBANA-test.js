@@ -2,7 +2,7 @@
 
 
 // global constants
-var WIDTH, HEIGHT, VIEW_ANGLE = 65, ASPECT, NEAR = 2, FAR = 100;
+var WIDTH, HEIGHT, VIEW_ANGLE = 65, ASPECT, NEAR = 5, FAR = 100;
 var ROOM_DIM = 50, OBJECT_SIZE = 2.5, OBJECT_DETAIL = 30;
 var MAX_CAMERA_ANGLE = Math.PI / 5;
 var CAMERA_RADIUS = ROOM_DIM / 2 - OBJECT_SIZE;
@@ -16,6 +16,7 @@ var azimuth = 0, zenith = 0, mouse_x = 0, mouse_y = 0, mouse_decay = true, mouse
 var renderer, composer, camera, scene;
 var mouse_decay;
 var objects;
+var hibana;
 
 
 // ****** Executes as soon as the window has loaded
@@ -77,7 +78,10 @@ function init3D() {
 
 	createRoom();
 	createCamera();	
+	
+	hibana = new HIBANA( scene, new THREE.Vector3( -100, -100, -100 ) );
 	createObjects( 25 );
+	createEmitters();
 	createLights();
 	
 	// start animation
@@ -113,6 +117,12 @@ function createObjects( objectCount ) {
 		object.position = createRandomPositionWithinRoom();
 		scene.add( object );
 		objects.push( object );
+	}
+}
+
+function createEmitters() {
+	for ( o in objects ) {
+		hibana.addEmitter( { geometry: objects[o].geometry, particle_color: new THREE.Color( 0xFF9999 ) } )
 	}
 }
 
@@ -165,6 +175,7 @@ function render() {
 	camera.position.y = CAMERA_RADIUS * -Math.sin( zenith );
 	camera.lookAt( CAMERA_TARGET );
 	
+	hibana.age();
 	
 	//////////////   PARTICLES   ////////////////
 	/*
