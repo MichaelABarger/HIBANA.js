@@ -57,7 +57,7 @@ HIBANA.prototype = {
 		parameters.particle_count = parameters.particle_count || 100;
 		parameters.particle_color = parameters.particle_color || new THREE.Color( 0xFFFFFF );
 		parameters.rate = parameters.rate || 50;
-		parameters.acceleration = parameters.acceleration || new THREE.Vector3( 0, 1, 0 );
+		parameters.acceleration = parameters.acceleration || new THREE.Vector3( 0, 0.2, 0 );
 		parameters.particle_life_expectancy_min = parameters.particle_life_expectancy_min || 5;
 		parameters.particle_life_expectancy_range = parameters.particle_life_expectancy_range || 30;
 		
