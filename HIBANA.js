@@ -3,6 +3,9 @@
 // loosely based on Sparks.js
 // by Michael Barger
 
+'use strict';
+if ( typeof(HIBANA) === 'undefined' )
+	HIBANA = {};
 
 function initParticles() {
 
@@ -24,12 +27,12 @@ function initParticles() {
 	texture.needsUpdate = true;
 	
 	particle_mat = new THREE.ParticleBasicMaterial( { size: PARTICLE_SIZE,
-																			   color: 0xEEEEEE,
-																			   map: texture,
-																			   blending: THREE.AdditiveBlending,
-																			   vertexColors: true,
-																			   transparent: true,
-																			   depthTest: false } );
+														color: 0xEEEEEE,
+													map: texture,
+													blending: THREE.AdditiveBlending,
+													vertexColors: true,
+													transparent: true,
+													depthTest: false } );
 	
 	particles_playing = false;
 

@@ -3,14 +3,15 @@
 
 // global constants
 var WIDTH, HEIGHT, VIEW_ANGLE, ASPECT, NEAR, FAR;
-var ROOM_DIM = 50, CUBE_DIM = 2.5;
-var MAX_AZIMUTH = Math.PI / 2;
+var ROOM_DIM = 50, OBJECT_SIZE = 2.5, OBJECT_DETAIL = 30;
+var MAX_AZIMUTH = Math.PI / 2; 
 var MOUSE_SPEED = 0.0001
 
 // global variables
 var azimuth, zenith, mouse_x, mouse_y, camera;
-var rack_height, renderer, composer, target, camera_radius, camera_home, scene, directional_light, point_light, ambient_light;
+var renderer, composer, camera_radius, camera_home, scene;
 var mouse_decay;
+var objects;
 
 
 // ****** Executes as soon as the window has loaded
@@ -62,48 +63,15 @@ function init3D() {
 	// initialize renderer
 	renderer = new THREE.WebGLRenderer( { antialias : true, shadowMapEnabled : true, shadowMapSoft : true, gammaInput : true, gammaOutput : true } );
     renderer.setSize( WIDTH, HEIGHT );
-	/*
-	renderer.shadowMapEnabled = true;
-	renderer.shadowMapSoft = true;
-	*/
-	renderer.setClearColorHex( 0x000099, 1 );
+	renderer.setClearColorHex( 0xFFFFFF, 1 );
     $("#main3d").append( renderer.domElement );
 
-	// initialize scene
     scene = new THREE.Scene();
-	/*scene.fog = new THREE.FogExp2( 0x8888AA, 0.0045 );*/
 
-	// create room
-	var geo = new THREE.CubeGeometry( ROOM_DIM,  ROOM_DIM,  ROOM_DIM, 10, 5, 10 );
-	var materials = [	new THREE.MeshPhongMaterial( { color : 0xFFFFFF, shading : THREE.FlatShading, shininess : 3, specular: 0xFFFFFF } ),
-				new THREE.MeshBasicMaterial( { color : 0x444444, shading : THREE.FlatShading, wireframe : true, wireframeLinewidth : 4, opacity : 0.3, transparent : true } ) ];
-			
-	var room_mesh = THREE.SceneUtils.createMultiMaterialObject( geo, materials );
-	room_mesh.position.set( 0, 0, 0 );
-	room_mesh.children[0].doubleSided = true;
-	room_mesh.children[1].doubleSided = true;
-	/*room_mesh.children[0].receiveShadow = true;*/
-	scene.add( room_mesh );
-	
-	// add block
-	var block = new THREE.Mesh( new THREE.CubeGeometry( CUBE_DIM, CUBE_DIM, CUBE_DIM ),
-						new THREE.MeshBasicMaterial( { color : 0xFF0000 } ) );
-	scene.add( block );
-	target = block;
-	
-	// add camera
-    camera = new THREE.PerspectiveCamera( VIEW_ANGLE, ASPECT, NEAR, FAR );
-	camera.position.set( 0, CUBE_DIM, 15 );
-	camera_radius = 15;
-	camera.lookAt( target );
-    scene.add( camera );
-	
-	// add lights
-	point_light = new THREE.PointLight( 0xFFFFFF, 0.4);
-	point_light.position.set( 10, 10, 10 );
-	scene.add( point_light );
-	ambient_light = new THREE.AmbientLight( 0xDDDDDD );
-	scene.add( ambient_light );	
+	createRoom();
+	createCamera();	
+	createObjects( 25 );
+	createLights();
 	
 	// start animation
 	$("#main3d img").css( "visibility", "hidden" );
@@ -111,7 +79,63 @@ function init3D() {
 	
 }
 
+function createRoom() {
+	var geo = new THREE.CubeGeometry( ROOM_DIM,  ROOM_DIM,  ROOM_DIM, 10, 10, 10 );
+	var materials = [	new THREE.MeshPhongMaterial( { color : 0xBBBBFF, shading : THREE.FlatShading, shininess : 3, specular: 0xFFFFFF } ),
+				new THREE.MeshBasicMaterial( { color : 0x444444, shading : THREE.FlatShading, wireframe : true, wireframeLinewidth : 4, opacity : 0.3, transparent : true } ) ];
+			
+	var room_mesh = THREE.SceneUtils.createMultiMaterialObject( geo, materials );
+	room_mesh.position.set( 0, 0, 0 );
+	room_mesh.children[0].doubleSided = true;
+	room_mesh.children[1].doubleSided = true;
+	scene.add( room_mesh );
+}
 
+function createObjects( objectCount ) {
+	objects = [];
+	for ( var i = 0; i < objectCount; i++ ) {
+		var object = new THREE.Mesh( new THREE.SphereGeometry( OBJECT_SIZE, OBJECT_DETAIL, OBJECT_DETAIL ),
+				new THREE.MeshPhongMaterial( { color : 0xFF0000 } ) );
+		object.position = createRandomPositionWithinRoom();
+		scene.add( object );
+		objects.push( object );
+	}
+}
+
+function createRandomPositionWithinRoom() {
+	var x = createRandomCoordinateWithinRoom();
+	var y = createRandomCoordinateWithinRoom();
+	var z;
+	do {
+		z = createRandomCoordinateWithinRoom();
+	} while ( z > camera.position.z - OBJECT_SIZE * 5 ); 
+	
+	return new THREE.Vector3( x, y, z );
+}
+
+function createRandomCoordinateWithinRoom() {
+	var maxDistanceFromCenter = ROOM_DIM / 2 - OBJECT_SIZE * 2;
+	return Math.random() * 2 * maxDistanceFromCenter - maxDistanceFromCenter;
+}
+
+function createLights() {
+	var point_light = new THREE.PointLight( 0xFFFFFF, 0.6);
+	point_light.position.set( 0, 0, 0 );
+	scene.add( point_light );
+	var camera_light = new THREE.PointLight( 0xFFFFFF, 0.3);
+	camera_light.position = camera.position;
+	scene.add( camera_light );
+	var ambient_light = new THREE.AmbientLight( 0x333333 );
+	scene.add( ambient_light );	
+}
+
+function createCamera() {
+    camera = new THREE.PerspectiveCamera( VIEW_ANGLE, ASPECT, NEAR, FAR );
+	camera.position.set( 0, 0, ROOM_DIM / 2 - OBJECT_SIZE );
+	camera_radius = 15;
+	camera.lookAt( new THREE.Vector3( 0, 0, 0 ) );
+    scene.add( camera );
+}
 
 
 
