@@ -12,7 +12,6 @@ var DEFAULT_HIDDEN_POINT = new THREE.Vector3( DEFAULT_HIDDEN_COORD, DEFAULT_HIDD
 this.scene = scene;
 this.hidden_point = hidden_point || DEFAULT_HIDDEN_POINT;
 
-this.particles_playing = false;
 this.emitters = [];
 
 this.paused = true;
@@ -131,32 +130,32 @@ HIBANA.prototype = {
 		
 		for ( e in this.emitters ) {
 			__generateParticles( this.emitters[e] );
-			for ( p in this.emitters[e].particles ) {
-				if ( ++this.emitters[e].particles[p].age > this.emitters[e].particles[p].lifeExpectancy ) {
-					this.emitters[e].particles[p].position.copy( this.hidden_point );
-					this.emitters[e].particles[p].color = this.emitters[e].original_color;
-					this.emitters[e].particles.splice( p, 1 );
+			for ( p in this.emitters[e].active_particles ) {
+				if ( ++this.emitters[e].active_particles[p].age > this.emitters[e].active_particles[p].lifeExpectancy ) {
+					this.emitters[e].active_particles[p].position.copy( this.hidden_point );
+					this.emitters[e].active_particles[p].color = this.emitters[e].original_color;
+					this.emitters[e].active_particles.splice( p, 1 );
 				} else {
 					// position/velocity change
 					/*
-					emitter.particles[p].velocity.x += PARTICLE_DRIFT_OFFSET - PARTICLE_DRIFT * Math.random();
-					emitter.particles[p].velocity.y -= PARTICLE_GRAVITY;
-					emitter.particles[p].velocity.z += PARTICLE_DRIFT_OFFSET - PARTICLE_DRIFT * Math.random();
+					emitter.active_particles[p].velocity.x += PARTICLE_DRIFT_OFFSET - PARTICLE_DRIFT * Math.random();
+					emitter.active_particles[p].velocity.y -= PARTICLE_GRAVITY;
+					emitter.active_particles[p].velocity.z += PARTICLE_DRIFT_OFFSET - PARTICLE_DRIFT * Math.random();
 					*/
-					this.emitters[e].particles[p].vertex.addSelf( this.emitters[e].particles[p].velocity );
+					this.emitters[e].active_particles[p].vertex.position.addSelf( this.emitters[e].active_particles[p].velocity );
 					
 					// color change
 					/*
 					var timeRemaining = emitter.particles[p].lifeExpectancy - emitter.particles[p].age;
 
-					if ( emitter.particles[p].age <= FIRST_FEW_TICKS ) {
-						emitter.particles[p].color.r -= emitter.firstfew.r;
-						emitter.particles[p].color.g -= emitter.firstfew.g;
-						emitter.particles[p].color.b -= emitter.firstfew.b;
+					if ( emitter.active_particles[p].age <= FIRST_FEW_TICKS ) {
+						emitter.active_particles[p].color.r -= emitter.firstfew.r;
+						emitter.active_particles[p].color.g -= emitter.firstfew.g;
+						emitter.active_particles[p].color.b -= emitter.firstfew.b;
 					} else if ( timeRemaining <= LAST_FEW_TICKS ) {
-						emitter.particles[p].color.r -= emitter.lastfew.r;
-						emitter.particles[p].color.g -= emitter.lastfew.g;
-						emitter.particles[p].color.b -= emitter.lastfew.b;
+						emitter.active_particles[p].color.r -= emitter.lastfew.r;
+						emitter.active_particles[p].color.g -= emitter.lastfew.g;
+						emitter.active_particles[p].color.b -= emitter.lastfew.b;
 					}
 					*/
 				}
