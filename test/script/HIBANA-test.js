@@ -123,7 +123,7 @@ function createObjects( objectCount ) {
 
 function createEmitters() {
 	for ( o in objects ) {
-		hibana.addEmitter( { mesh: objects[o], particle_color: new THREE.Color( 0xFF9999 ) } )
+		hibana.addEmitter( { mesh: objects[o], particle_color: new THREE.Color( 0xff9100 ) } )
 	}
 	hibana.play();
 }
@@ -142,10 +142,10 @@ function createRandomCoordinateWithinRoom() {
 }
 
 function createLights() {
-	var point_light = new THREE.PointLight( 0xFFFFFF, 0.6);
+	var point_light = new THREE.PointLight( 0xFFFFFF, 0.3);
 	point_light.position.set( 0, 0, 0 );
 	scene.add( point_light );
-	var camera_light = new THREE.PointLight( 0xFFFFFF, 0.3);
+	var camera_light = new THREE.PointLight( 0xFFFFFF, 0.2);
 	camera_light.position = camera.position;
 	scene.add( camera_light );
 	var ambient_light = new THREE.AmbientLight( 0x333333 );

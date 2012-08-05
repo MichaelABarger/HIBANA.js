@@ -5,7 +5,7 @@
 
 HIBANA = function( scene, hidden_point ) {
 
-var PARTICLE_SIZE = 6.5;
+var PARTICLE_SIZE = 5.0;
 var DEFAULT_HIDDEN_COORD = -1000;
 var DEFAULT_HIDDEN_POINT = new THREE.Vector3( DEFAULT_HIDDEN_COORD, DEFAULT_HIDDEN_COORD, DEFAULT_HIDDEN_COORD );
 
@@ -57,7 +57,7 @@ HIBANA.prototype = {
 		parameters.particle_count = parameters.particle_count || 100;
 		parameters.particle_color = parameters.particle_color || new THREE.Color( 0xFFFFFF );
 		parameters.rate = parameters.rate || 50;
-		parameters.acceleration = parameters.acceleration || new THREE.Vector3( 0, 0.2, 0 );
+		parameters.acceleration = parameters.acceleration || new THREE.Vector3( 0, 0.05, 0 );
 		parameters.particle_life_expectancy_min = parameters.particle_life_expectancy_min || 5;
 		parameters.particle_life_expectancy_range = parameters.particle_life_expectancy_range || 30;
 		
