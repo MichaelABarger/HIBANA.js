@@ -64,7 +64,7 @@ HIBANA.prototype = {
 		
 		var emitter = {};
 		emitter.geometry = new THREE.Geometry();
-		emitter.starting_position = THREE.GeometryUtils.randomPointsInGeometry( parameters.geometry, parameters.particle_count );
+		emitter.starting_position = THREE.GeometryUtils.randomPointsInGeometry( parameters.mesh.geometry, parameters.particle_count );
 		emitter.original_color = new THREE.Color().copy( parameters.particle_color );
 		
 		emitter.geometry.colors = [];
@@ -75,7 +75,7 @@ HIBANA.prototype = {
 		emitter.geometry.dynamic = true;
 		
 		emitter.system = new THREE.ParticleSystem( emitter.geometry, this.material );
-		emitter.system.position.set( parameters.geometry.position );
+		emitter.system.position = parameters.mesh.position;
 		emitter.system.sortParticles = true;
 		/*
 		emitter.firstfew = new THREE.Color();
@@ -92,41 +92,50 @@ HIBANA.prototype = {
 		this.emitters.push( emitter );
 		
 		return this;
-	},
-
+	},	
 	
-	__generateParticles: function( emitter ) {
-		var r = 100 * Math.random();
-		for ( var i = 0; i < Math.floor( r / (100.0 - emitter.rate)); i++ ) {
-			var new_particle = {};
-			
-			new_particle.vertex = emitter.geometry.vertices[ emitter.next_particle ];
-			new_particle.color = emitter.geometry.colors[ emitter.next_particle ];
-			new_particle.vertex.position = new THREE.Vector3().copy( emitter.starting_position[ emitter.next_particle ] );
-			new_particle.age = 0;
-			new_particle.life_expectancy = emitter.particle_life_expectancy_min + Math.random() * emitter.particle_life_expectancy_range;
-			new_particle.velocity = new THREE.Vector3().copy( emitter.acceleration );
-			
-			emitter.particles.push( new_particle );
-			
-			if ( ++emitter.next_particle >= emitter.geometry.vertices.length )
-				emitter.next_particle = 0;
-		}
-		
-		return this;
+	pause: function() {
+		this.paused = true;
+	},
+	
+	
+	play: function() {
+		this.paused = false;
 	},
 	
 
 	age: function() {
 		if ( this.paused ) return this;
 		
-		for ( e in emitters ) {
-			__generateParticles( emitters[e] );
-			for ( p in emitters[e].particles ) {
-				if ( ++emitters[e].particles[p].age > emitters[e].particles[p].lifeExpectancy ) {
-					emitters[e].particles[p].position.copy( this.hidden_point );
-					emitters[e].particles[p].color = emitter.original_color;
-					emitters[e].particles.splice( p, 1 );
+		__generateParticles = function( emitter ) {
+			var r = 100 * Math.random();
+			for ( var i = 0; i < Math.floor( r / (100.0 - emitter.rate)); i++ ) {
+				var new_particle = {};
+				
+				new_particle.vertex = emitter.geometry.vertices[ emitter.next_particle ];
+				new_particle.color = emitter.geometry.colors[ emitter.next_particle ];
+				new_particle.vertex.position = new THREE.Vector3().copy( emitter.starting_position[ emitter.next_particle ] );
+				new_particle.age = 0;
+				new_particle.life_expectancy = emitter.particle_life_expectancy_min + Math.random() * emitter.particle_life_expectancy_range;
+				new_particle.velocity = new THREE.Vector3().copy( emitter.acceleration );
+				
+				emitter.active_particles.push( new_particle );
+				
+				if ( ++emitter.next_particle >= emitter.geometry.vertices.length )
+					emitter.next_particle = 0;
+			}
+			
+			return this;
+		}
+
+		
+		for ( e in this.emitters ) {
+			__generateParticles( this.emitters[e] );
+			for ( p in this.emitters[e].particles ) {
+				if ( ++this.emitters[e].particles[p].age > this.emitters[e].particles[p].lifeExpectancy ) {
+					this.emitters[e].particles[p].position.copy( this.hidden_point );
+					this.emitters[e].particles[p].color = this.emitters[e].original_color;
+					this.emitters[e].particles.splice( p, 1 );
 				} else {
 					// position/velocity change
 					/*
@@ -134,7 +143,7 @@ HIBANA.prototype = {
 					emitter.particles[p].velocity.y -= PARTICLE_GRAVITY;
 					emitter.particles[p].velocity.z += PARTICLE_DRIFT_OFFSET - PARTICLE_DRIFT * Math.random();
 					*/
-					emitters[e].particles[p].vertex.addSelf( emitters[e].particles[p].velocity );
+					this.emitters[e].particles[p].vertex.addSelf( this.emitters[e].particles[p].velocity );
 					
 					// color change
 					/*
@@ -152,8 +161,8 @@ HIBANA.prototype = {
 					*/
 				}
 			}
-			emitters[e].geometry.verticesNeedUpdate = true;
-			emitters[e].geometry.colorsNeedUpdate = false;
+			this.emitters[e].geometry.verticesNeedUpdate = true;
+			this.emitters[e].geometry.colorsNeedUpdate = false;
 		}	
 		return this;
 	}

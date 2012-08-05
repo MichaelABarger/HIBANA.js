@@ -80,6 +80,7 @@ function init3D() {
 	createCamera();	
 	
 	hibana = new HIBANA( scene, new THREE.Vector3( -100, -100, -100 ) );
+	
 	createObjects( 25 );
 	createEmitters();
 	createLights();
@@ -122,8 +123,9 @@ function createObjects( objectCount ) {
 
 function createEmitters() {
 	for ( o in objects ) {
-		hibana.addEmitter( { geometry: objects[o].geometry, particle_color: new THREE.Color( 0xFF9999 ) } )
+		hibana.addEmitter( { mesh: objects[o], particle_color: new THREE.Color( 0xFF9999 ) } )
 	}
+	hibana.play();
 }
 
 function createRandomPositionWithinRoom() {
