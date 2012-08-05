@@ -100,9 +100,7 @@ function createRoom() {
 
 function createCamera() {
     camera = new THREE.PerspectiveCamera( VIEW_ANGLE, ASPECT, NEAR, FAR );
-	var initial_position = new THREE.Vector3();
-	initial_position.copy( CAMERA_HOME );
-	camera.position = initial_position;
+	camera.position = new THREE.Vector3().copy( CAMERA_HOME );
 	camera.lookAt( CAMERA_TARGET );
     scene.add( camera );
 }
