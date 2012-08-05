@@ -4,11 +4,13 @@
 // by Michael Barger
 
 'use strict';
-if ( typeof(HIBANA) === 'undefined' )
-	HIBANA = {};
+var HIBANA = HIBANA || {
 
-function initParticles() {
+particle_mat: [],
+particles_playing: false,
 
+
+initialize: function() {
 	var canvas = document.createElement( 'canvas' );
 	canvas.width = 16;
 	canvas.height = 16;
@@ -26,27 +28,18 @@ function initParticles() {
 	var texture = new THREE.Texture( canvas );
 	texture.needsUpdate = true;
 	
-	particle_mat = new THREE.ParticleBasicMaterial( { size: PARTICLE_SIZE,
+	this.particle_mat = new THREE.ParticleBasicMaterial( { size: PARTICLE_SIZE,
 														color: 0xEEEEEE,
 													map: texture,
 													blending: THREE.AdditiveBlending,
 													vertexColors: true,
 													transparent: true,
 													depthTest: false } );
-	
-	particles_playing = false;
-
-}
+},
 
 
 
-// ****** Creates and RETURNS a new emitter at x, y, z
-function createEmitter  ( cur_rack,		// current rack
-									sys_x,			// float x
-									sys_y,			// float y
-									sys_z,			// float z
-									sys_color ) {	// particle colors
-	
+createEmitter: function ( mesh ) {
 	var e = {};
 	e.geo = new THREE.Geometry();
 	var color = [];
@@ -76,15 +69,14 @@ function createEmitter  ( cur_rack,		// current rack
 	e.rate = 0;
 	e.lift = 0;
 	
-	scene.add( e.sys );
-	emitter.push( e );
+	HIBANA.scene.add( e.sys );
+	HIBANA.emitters.push( e );
 	cur_rack.emitter = e;
-}
+},
 
 
 
-function generateParticles( e ) {
-
+generateParticles: function( e ) {
 	var r = 100 * Math.random();
 	//if ( r  < e.rate ) {
 	for ( var i = 0; i < Math.floor( r / (100.0 - e.rate)); i++ ) {
@@ -105,12 +97,11 @@ function generateParticles( e ) {
 			e.cur_particle = 0;
 	}
 	
-}
+},
 
 
 
-function ageParticles( e ) {
-
+ageParticles: function( e ) {
 	for ( p in e.particles ) {
 		if ( ++e.particles[p].age > e.particles[p].lifeExpectancy ) {
 			e.particles[p].vertex.x = e.particles[p].init_pos.x;
@@ -144,3 +135,5 @@ function ageParticles( e ) {
 	}
 
 }
+
+};

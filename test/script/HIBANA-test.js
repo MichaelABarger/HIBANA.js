@@ -2,14 +2,18 @@
 
 
 // global constants
-var WIDTH, HEIGHT, VIEW_ANGLE, ASPECT, NEAR, FAR;
+var WIDTH, HEIGHT, VIEW_ANGLE = 65, ASPECT, NEAR = 2, FAR = 100;
 var ROOM_DIM = 50, OBJECT_SIZE = 2.5, OBJECT_DETAIL = 30;
-var MAX_AZIMUTH = Math.PI / 2; 
+var MAX_CAMERA_ANGLE = Math.PI / 5;
+var CAMERA_RADIUS = ROOM_DIM / 2 - OBJECT_SIZE;
+var CAMERA_HOME = new THREE.Vector3( 0, 0, ROOM_DIM / 2 - OBJECT_SIZE );
+var CAMERA_TARGET = new THREE.Vector3( 0, 0, 0 );
+var AZIMUTH_RANGE = OBJECT_SIZE; 
 var MOUSE_SPEED = 0.0001
 
 // global variables
-var azimuth, zenith, mouse_x, mouse_y, camera;
-var renderer, composer, camera_radius, camera_home, scene;
+var azimuth = 0, zenith = 0, mouse_x = 0, mouse_y = 0, mouse_decay = true, mouse_is_down = false;
+var renderer, composer, camera, scene;
 var mouse_decay;
 var objects;
 
@@ -21,19 +25,24 @@ $(window).load( function() {
 	
 	$("#main3d").mousedown( function() {
 		mouse_decay = false;
-		mouse_x = 0;
+		mouse_is_down = true;
+		mouse_x = mouse_y = 0;
 		$("#main3d").bind( "mousemove", function( event ) {
+			mouse_is_down = true;
 			mouse_x = event.pageX - $("#main3d").position().left - $("#main3d").width() / 2;
+			mouse_y = event.pageY - $("#main3d").position().top - $("#main3d").height() / 2;
 		});
 	});
 	
 	$("body").mouseup( function() {
 		mouse_decay = true;
+		mouse_is_down = false;
 		$("#main3d").unbind( "mousemove" );
 	});
 	
 	$("#main3d").mouseleave( function() {
 		mouse_decay = true;
+		mouse_is_down = false;
 		$("#main3d").unbind( "mousemove" );
 	});
 	
@@ -56,9 +65,7 @@ $(window).resize( function() {
 function init3D() {
 
 	// initialize 3d globals
-	WIDTH = $("#main3d").width(); HEIGHT = $("#main3d").height();
-	VIEW_ANGLE = 65; ASPECT = WIDTH / HEIGHT; NEAR = 1; FAR = 100;	// camera setup vars
-	azimuth = 0, mouse_x = 0, mouse_decay = true;
+	WIDTH = $("#main3d").width(); HEIGHT = $("#main3d").height(); ASPECT = WIDTH / HEIGHT;
 	
 	// initialize renderer
 	renderer = new THREE.WebGLRenderer( { antialias : true, shadowMapEnabled : true, shadowMapSoft : true, gammaInput : true, gammaOutput : true } );
@@ -91,11 +98,20 @@ function createRoom() {
 	scene.add( room_mesh );
 }
 
+function createCamera() {
+    camera = new THREE.PerspectiveCamera( VIEW_ANGLE, ASPECT, NEAR, FAR );
+	var initial_position = new THREE.Vector3();
+	initial_position.copy( CAMERA_HOME );
+	camera.position = initial_position;
+	camera.lookAt( CAMERA_TARGET );
+    scene.add( camera );
+}
+
 function createObjects( objectCount ) {
 	objects = [];
 	for ( var i = 0; i < objectCount; i++ ) {
 		var object = new THREE.Mesh( new THREE.SphereGeometry( OBJECT_SIZE, OBJECT_DETAIL, OBJECT_DETAIL ),
-				new THREE.MeshPhongMaterial( { color : 0xFF0000 } ) );
+				new THREE.MeshPhongMaterial( { color: 0xFF0000, metal: true, opacity: 0.8 } ) );
 		object.position = createRandomPositionWithinRoom();
 		scene.add( object );
 		objects.push( object );
@@ -105,10 +121,7 @@ function createObjects( objectCount ) {
 function createRandomPositionWithinRoom() {
 	var x = createRandomCoordinateWithinRoom();
 	var y = createRandomCoordinateWithinRoom();
-	var z;
-	do {
-		z = createRandomCoordinateWithinRoom();
-	} while ( z > camera.position.z - OBJECT_SIZE * 5 ); 
+	var z = createRandomCoordinateWithinRoom();
 	
 	return new THREE.Vector3( x, y, z );
 }
@@ -129,13 +142,6 @@ function createLights() {
 	scene.add( ambient_light );	
 }
 
-function createCamera() {
-    camera = new THREE.PerspectiveCamera( VIEW_ANGLE, ASPECT, NEAR, FAR );
-	camera.position.set( 0, 0, ROOM_DIM / 2 - OBJECT_SIZE );
-	camera_radius = 15;
-	camera.lookAt( new THREE.Vector3( 0, 0, 0 ) );
-    scene.add( camera );
-}
 
 
 
@@ -151,25 +157,16 @@ function animate() {
 
 // ****** Rendering function executed every refresh, responsible also for moving the camera
 function render() {
-	/*
 	////////////////   UPDATE CAMERA POSITION   ///////////////
-	if ( mouse_x != 0 && azimuth != 0 )
-		azimuth += mouse_x * MOUSE_SPEED *  ( 1 - ((mouse_x * azimuth) / Math.abs(mouse_x * azimuth))  * (Math.abs(azimuth)/ MAX_AZIMUTH) );
-	else
-		azimuth += mouse_x * MOUSE_SPEED * ( 1 - (Math.abs(azimuth) / MAX_AZIMUTH) );
+	azimuth = calculateCameraAngleFromMouse( azimuth, mouse_x );
+	zenith = calculateCameraAngleFromMouse( zenith, mouse_y );
 	
-	if ( mouse_decay == true ) {
-		if ( Math.abs( mouse_x ) < 0.1 ) {
-			mouse_decay = false;
-			mouse_x = 0;
-		}
-		mouse_x /= 1.1;
-	}
+	decayCameraRotationalVelocity();
 	
-	camera.position.x = target.x + camera_radius * Math.sin( azimuth );
-	camera.position.z = target.z + camera_radius * Math.cos( azimuth );
-	camera.lookAt( target );
-	*/
+	camera.position.x = CAMERA_RADIUS * Math.sin( azimuth );
+	camera.position.y = CAMERA_RADIUS * -Math.sin( zenith );
+	camera.lookAt( CAMERA_TARGET );
+	
 	
 	//////////////   PARTICLES   ////////////////
 	/*
@@ -186,4 +183,28 @@ function render() {
 	//////////////   RENDER   ///////////////////
 	renderer.render( scene, camera );
 	
+}
+
+function calculateCameraAngleFromMouse( angle, mouse ) {
+	if ( mouse != 0 && angle != 0 )
+		return angle + mouse * MOUSE_SPEED *  ( 1 - ((mouse * angle) / Math.abs(mouse * angle))  * (Math.abs(angle)/ MAX_CAMERA_ANGLE) );
+	else
+		return angle + mouse * MOUSE_SPEED * ( 1 - (Math.abs(angle) / MAX_CAMERA_ANGLE) );
+}
+
+function decayCameraRotationalVelocity() {
+	if ( mouse_decay ) {
+		if ( Math.abs( mouse_x ) > 0.1 && Math.abs( mouse_y ) > 0.1 ) {
+			mouse_x /= 1.1;
+			mouse_y /= 1.1;
+		} else {
+			mouse_decay = false;
+			mouse_x = mouse_y = 0;
+		}
+	} else if ( !mouse_is_down ) {
+		var difference_x = CAMERA_HOME.x - camera.position.x;
+		var difference_y = CAMERA_HOME.y - camera.position.y;
+		mouse_x = Math.abs(difference_x) > 0.1 ? (difference_x / 10.0) * 6.0 : 0;
+		mouse_y = Math.abs(difference_y) > 0.1 ? -(difference_y / 10.0) * 6.0 : 0;
+	}
 }
