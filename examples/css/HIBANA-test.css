@@ -12,61 +12,64 @@ body
 	overflow: none
 }
 
+div.toolbar
+{
+	position: absolute;
+	background-color: #777787;
+	left: 87.5%;
+	top: 5%;
+	margin: auto;
+	padding: 0;
+	border-style: solid;
+	border-right-style: none;
+	border-width: 4px;
+	border-color: #999999;
+	width: 12.5%;
+	height: 90%
+}
+
 div.main-viewport
 {
 	position: absolute;
 	background-color: #AAAABB;
 	left: 5%;
-	top: 50px;
+	top: 5%;
 	margin: auto;
 	padding: 0;
 	border-style: solid;
 	border-width: 4px;
 	border-color: #999999;
-	width: 90%;
-	height: 90%;
+	width: 80%;
+	height: 90%
+}
+
+div.button
+{
+	position: relative;
+	background-color: #BBBBCC;
+	margin: 2.5% 2.5%;
+	text-align: center;
+	font-size: 15pt;
+	font-family: sans-serif;
+	color: #777787;
+	line-height: 30pt;
+	padding: auto;
+}
+
+div.slider
+{
+	position: relative;
+	background-color: #BBBBCC;
+	margin: 2.5% 2.5%;
+	text-align: center;
+	font-size: 15pt;
+	font-family: sans-serif;
+	color: #777787;
+	padding: auto;
 }
 
 div#main3d
 {
 	z-index: 1;
 	visibility: visible
-}
-
-
-div#main3d img {
-	position: absolute;
-	top: 50%;
-	left: 50%;
-	margin-top: -21px;
-	margin-left: -150px
-}
-
-
-.icon-wrapper
-{
-	display: inline-block; 
-	padding: 4px 0;
-}
-
-
-.ui-icon
-{
-	margin: 0 4px;
-}
-
-
-#slider
-{
-	width: 400px; 
-	display: inline-block; 
-	margin: -3px 15px;
-}
-
-
-#controls
-{
-	width: 500px;
-	height: 50px;
-	margin: 10px auto;
 }

@@ -15,13 +15,13 @@ var MOUSE_SPEED = 0.0001
 var azimuth = 0, zenith = 0, mouse_x = 0, mouse_y = 0, mouse_decay = true, mouse_is_down = false;
 var renderer, composer, camera, scene;
 var mouse_decay;
-var objects;
+var objects, areOrbiting;
 var hibana;
 
 
 // ****** Executes as soon as the window has loaded
 $(window).load( function() {
-	// initialize the 3D engine
+
 	init3D();
 	
 	$("#main3d").mousedown( function() {
@@ -47,6 +47,22 @@ $(window).load( function() {
 		$("#main3d").unbind( "mousemove" );
 	});
 	
+	$("#play-pause").click( function() {
+		hibana.togglePause();
+	});
+	
+	$("#show-hide").click( function() {
+		for ( o in objects )
+			objects[o].visible = !objects[o].visible;
+	});
+	
+	$("#orbit").click( function() {
+		areOrbiting = !areOrbiting;
+	});
+	
+	$("#size-slider").change( function( new_value ) {
+		hibana.setParticleSize( new_value );
+	});
 });
 
 // ****** Makes sure the 3D draws properly even if the browser window is resized
@@ -79,7 +95,7 @@ function init3D() {
 	createRoom();
 	createCamera();	
 	
-	hibana = new HIBANA( scene, new THREE.Vector3( -100, -100, -100 ) );
+	hibana = new HIBANA( scene );
 	
 	createObjects( 25 );
 	createEmitters();
@@ -110,9 +126,10 @@ function createCamera() {
 
 function createObjects( objectCount ) {
 	objects = [];
+	areOrbiting = false;
 	for ( var i = 0; i < objectCount; i++ ) {
 		var object = new THREE.Mesh( new THREE.SphereGeometry( OBJECT_SIZE, OBJECT_DETAIL, OBJECT_DETAIL ),
-				new THREE.MeshPhongMaterial( { color: 0xFF0000, metal: true, opacity: 1.0 } ) );
+				new THREE.MeshPhongMaterial( { color: 0xFF0000, metal: true } ) );
 		object.position = createRandomPositionWithinRoom();
 		scene.add( object );
 		objects.push( object );
@@ -123,7 +140,6 @@ function createEmitters() {
 	for ( o in objects ) {
 		hibana.addEmitter( { mesh: objects[o], particle_color: new THREE.Color( 0xff9100 ) } )
 	}
-	hibana.play();
 }
 
 function createRandomPositionWithinRoom() {
@@ -140,10 +156,10 @@ function createRandomCoordinateWithinRoom() {
 }
 
 function createLights() {
-	var point_light = new THREE.PointLight( 0xFFFFFF, 0.7);
+	var point_light = new THREE.PointLight( 0xFFFFFF, 0.6);
 	point_light.position.set( 0, 0, 0 );
 	scene.add( point_light );
-	var camera_light = new THREE.PointLight( 0xFFFFFF, 0.4);
+	var camera_light = new THREE.PointLight( 0xFFFFFF, 0.3);
 	camera_light.position = camera.position;
 	scene.add( camera_light );
 }
@@ -151,7 +167,6 @@ function createLights() {
 
 
 
-// ****** Animation loop function
 function animate() {
 	
 	requestAnimationFrame( animate );
@@ -159,20 +174,15 @@ function animate() {
 	
 }
 
-
-
-// ****** Rendering function executed every refresh, responsible also for moving the camera
 function render() {
-	////////////////   UPDATE CAMERA POSITION   ///////////////
 	azimuth = calculateCameraAngleFromMouse( azimuth, mouse_x );
 	zenith = calculateCameraAngleFromMouse( zenith, mouse_y );
-	
 	decayCameraRotationalVelocity();
-	
 	camera.position.x = CAMERA_RADIUS * Math.sin( azimuth );
 	camera.position.y = CAMERA_RADIUS * -Math.sin( zenith );
 	camera.lookAt( CAMERA_TARGET );
 	
+	orbitObjects();
 	hibana.age();
 	
 	renderer.render( scene, camera );
@@ -201,4 +211,14 @@ function decayCameraRotationalVelocity() {
 		mouse_x = Math.abs(difference_x) > 0.1 ? (difference_x / 10.0) * 6.0 : 0;
 		mouse_y = Math.abs(difference_y) > 0.1 ? -(difference_y / 10.0) * 6.0 : 0;
 	}
+}
+
+function orbitObjects() {
+	var THETA = Math.PI / 180.0;
+	if ( !areOrbiting )
+		return;
+	for ( o in objects ) {
+		objects[o].position.x = objects[o].position.x * Math.cos( THETA ) - objects[o].position.z * Math.sin( THETA );
+		objects[o].position.z = objects[o].position.z * Math.cos( THETA ) + objects[o].position.x * Math.sin( THETA );
+	}	
 }

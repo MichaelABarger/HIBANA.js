@@ -3,22 +3,24 @@
 // loosely based on Sparks.js
 // by Michael Barger
 
-HIBANA = function( scene, hidden_point ) {
+HIBANA = function( scene, parameters ) {
 
-var PARTICLE_SIZE = 5.0;
-var DEFAULT_HIDDEN_COORD = -1000;
-var DEFAULT_HIDDEN_POINT = new THREE.Vector3( DEFAULT_HIDDEN_COORD, DEFAULT_HIDDEN_COORD, DEFAULT_HIDDEN_COORD );
+	var DEFAULT_PARTICLE_SIZE = 5.0;
+	var DEFAULT_HIDDEN_COORD = -1000;
+	var DEFAULT_HIDDEN_POINT = new THREE.Vector3( DEFAULT_HIDDEN_COORD, DEFAULT_HIDDEN_COORD, DEFAULT_HIDDEN_COORD );
+	var DEFAULT_PAUSED = true;
 
-this.scene = scene;
-this.hidden_point = hidden_point || DEFAULT_HIDDEN_POINT;
+	parameters = parameters || {};
+	this.scene = scene;
+	this.hidden_point = parameters.hidden_point || DEFAULT_HIDDEN_POINT;
+	this.texture = parameters.texture || __makeDefaultTexture();
+	this.paused = parameters.paused || DEFAULT_PAUSED;
+	this.particle_size = parameters.particle_size || DEFAULT_PARTICLE_SIZE;
+	
+	this.material = __makeMaterial( this.texture, this.particle_size );
+	this.emitters = [];
 
-this.emitters = [];
-
-this.paused = true;
-
-this.material = __initialize_material( PARTICLE_SIZE );
-
-	function __initialize_material( particle_size ) {
+	function __makeDefaultTexture () {
 		var canvas = document.createElement( 'canvas' );
 		canvas.width = 16;
 		canvas.height = 16;
@@ -36,13 +38,18 @@ this.material = __initialize_material( PARTICLE_SIZE );
 		var texture = new THREE.Texture( canvas );
 		texture.needsUpdate = true;
 		
+		return texture;
+	}
+
+	function __makeMaterial ( texture, particle_size ) {
 		return new THREE.ParticleBasicMaterial( { 	size: particle_size,
-													color: 0xEEEEEE,
+													color: 0xFFFFFF,
 													map: texture,
 													blending: THREE.AdditiveBlending,
 													vertexColors: true,
 													transparent: true,
-													depthTest: false } );
+													overdraw: true,
+													depthWrite: false } );
 	}
 };
 
@@ -59,7 +66,7 @@ HIBANA.prototype = {
 		parameters.rate = parameters.rate || 75;
 		parameters.acceleration = parameters.acceleration || new THREE.Vector3( 0, 0.25, 0 );
 		parameters.particle_life_expectancy_min = parameters.particle_life_expectancy_min || 5;
-		parameters.particle_life_expectancy_range = parameters.particle_life_expectancy_range || 30;
+		parameters.particle_life_expectancy_range = parameters.particle_life_expectancy_range || 35;
 		
 		var emitter = {};
 		emitter.geometry = new THREE.Geometry();
@@ -95,17 +102,25 @@ HIBANA.prototype = {
 		return this;
 	},	
 	
-	pause: function() {
+	pause: function () {
 		this.paused = true;
 	},
 	
-	
-	play: function() {
+	play: function () {
 		this.paused = false;
 	},
-	
 
-	age: function() {
+	togglePause: function() {
+		this.paused = !this.paused;
+	},
+	
+	setParticleSize: function ( new_size ) {
+		this.material.size = new_size;
+		this.material.needsUpdate = true;
+		this.texture.needsUpdate = true;
+	},
+
+	age: function () {
 		if ( this.paused ) return this;
 		
 		__generateParticles = function( emitter ) {
