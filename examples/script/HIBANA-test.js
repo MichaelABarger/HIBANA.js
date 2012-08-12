@@ -60,8 +60,12 @@ $(window).load( function() {
 		areOrbiting = !areOrbiting;
 	});
 	
-	$("#size-slider").change( function( new_value ) {
-		hibana.setParticleSize( new_value );
+	$("#size-slider").change( function() {
+		hibana.setParticleSize( parseInt( $(this).val() ) );
+	});
+	
+	$("#rate-slider").change( function() {
+		hibana.setRate( parseInt( $(this).val() ) );
 	});
 });
 

@@ -5,21 +5,48 @@
 
 HIBANA = function( scene, parameters ) {
 
-	var DEFAULT_PARTICLE_SIZE = 5.0;
-	var DEFAULT_HIDDEN_COORD = -1000;
-	var DEFAULT_HIDDEN_POINT = new THREE.Vector3( DEFAULT_HIDDEN_COORD, DEFAULT_HIDDEN_COORD, DEFAULT_HIDDEN_COORD );
-	var DEFAULT_PAUSED = true;
-
 	parameters = parameters || {};
 	this.scene = scene;
-	this.hidden_point = parameters.hidden_point || DEFAULT_HIDDEN_POINT;
+	this.hidden_point = parameters.hidden_point || new THREE.Vector3( -1000, -1000, -1000 );
 	this.texture = parameters.texture || __makeDefaultTexture();
-	this.paused = parameters.paused || DEFAULT_PAUSED;
-	this.particle_size = parameters.particle_size || DEFAULT_PARTICLE_SIZE;
+	this.paused = parameters.paused || true;
+	this.particle_size = parameters.particle_size || 4.0;
 	
-	this.material = __makeMaterial( this.texture, this.particle_size );
+	// thanks to Alteredq for inspiration on particle shader code!
+	this.vertex_shader =
+		"uniform float amplitude;" +
+		"attribute float size;" +
+		"attribute vec3 custom_color;" +
+		
+		"varying vec3 vColor" +
+		
+		"void main() {" +
+			"vertex_color = custom_color;" +
+			"vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );" +
+			"gl_PointSize = size * (300.0 / length( mvPosition.xyz ));" +
+			"gl_Position = projectionMatrix * mvPosition;" +
+		"}";
+	this.fragment_shader =
+		"uniform vec3 color;" +
+		"uniform sampler2D texture;" +
+		"varying vec3 vertex_color;" +
+		"void main() {" +
+			"gl_FragColor = vec4( color * vColor, 1.0 );" +
+			"gl_FragColor *= texture2D( texture, gl_PointCoord );" +
+		"}";
+	this.attributes = {
+		size: 			{ type: 'f', value: [] },
+		custom_color:	{ type: 'c', value: [] }
+	};
+	this.uniforms = {
+		amplitude:		{ type: 'f', value: 1.0 },
+		color:			{ type: 'c', value: new THREE.Color( 0xFFFFFF ) },
+		texture:		{ type: 't', value: 0, texture: this.texture }
+	};
+		
+	this.material = this.__makeMaterial( this.texture, this.particle_size );
 	this.emitters = [];
-
+	
 	function __makeDefaultTexture () {
 		var canvas = document.createElement( 'canvas' );
 		canvas.width = 16;
@@ -41,16 +68,6 @@ HIBANA = function( scene, parameters ) {
 		return texture;
 	}
 
-	function __makeMaterial ( texture, particle_size ) {
-		return new THREE.ParticleBasicMaterial( { 	size: particle_size,
-													color: 0xFFFFFF,
-													map: texture,
-													blending: THREE.AdditiveBlending,
-													vertexColors: true,
-													transparent: true,
-													overdraw: true,
-													depthWrite: false } );
-	}
 };
 
 
@@ -83,12 +100,6 @@ HIBANA.prototype = {
 		emitter.system = new THREE.ParticleSystem( emitter.geometry, this.material );
 		emitter.system.position = parameters.mesh.position;
 		emitter.system.sortParticles = true;
-		/*
-		emitter.firstfew = new THREE.Color();
-		emitter.firstfew.setRGB( (1.0 - emitter.color.r) / FIRST_FEW_TICKS, (1.0 - emitter.color.g) / FIRST_FEW_TICKS, (1.0 - emitter.color.b) / FIRST_FEW_TICKS );
-		emitter.lastfew = new THREE.Color();
-		emitter.lastfew.setRGB( emitter.color.r / LAST_FEW_TICKS / 1.3, emitter.color.g / LAST_FEW_TICKS / 1.1, emitter.color.b / LAST_FEW_TICKS );
-		*/
 		emitter.active_particles = [];
 		emitter.next_particle = 0;
 		emitter.rate = parameters.rate;
@@ -116,8 +127,11 @@ HIBANA.prototype = {
 	
 	setParticleSize: function ( new_size ) {
 		this.material.size = new_size;
-		this.material.needsUpdate = true;
-		this.texture.needsUpdate = true;
+	},
+	
+	setRate: function ( new_rate ) {
+		for ( e in this.emitters )
+			this.emitters[e].rate = new_rate;
 	},
 
 	age: function () {
@@ -125,7 +139,7 @@ HIBANA.prototype = {
 		
 		__generateParticles = function( emitter ) {
 			var r = 100 * Math.random();
-			for ( var i = 0; i < Math.floor( r / (100.0 - emitter.rate)); i++ ) {
+			for ( var i = 0; i < Math.floor( r / (100.5 - emitter.rate)); i++ ) {
 				var new_particle = {};
 				
 				new_particle.vertex = emitter.geometry.vertices[ emitter.next_particle ];
@@ -160,26 +174,22 @@ HIBANA.prototype = {
 					emitter.active_particles[p].velocity.z += PARTICLE_DRIFT_OFFSET - PARTICLE_DRIFT * Math.random();
 					*/
 					this.emitters[e].active_particles[p].vertex.addSelf( this.emitters[e].active_particles[p].velocity );
-					
-					// color change
-					/*
-					var timeRemaining = emitter.particles[p].lifeExpectancy - emitter.particles[p].age;
-
-					if ( emitter.active_particles[p].age <= FIRST_FEW_TICKS ) {
-						emitter.active_particles[p].color.r -= emitter.firstfew.r;
-						emitter.active_particles[p].color.g -= emitter.firstfew.g;
-						emitter.active_particles[p].color.b -= emitter.firstfew.b;
-					} else if ( timeRemaining <= LAST_FEW_TICKS ) {
-						emitter.active_particles[p].color.r -= emitter.lastfew.r;
-						emitter.active_particles[p].color.g -= emitter.lastfew.g;
-						emitter.active_particles[p].color.b -= emitter.lastfew.b;
-					}
-					*/
 				}
 			}
 			this.emitters[e].geometry.verticesNeedUpdate = true;
 			this.emitters[e].geometry.colorsNeedUpdate = false;
 		}	
 		return this;
+	},
+	
+	__makeMaterial: function ( texture, particle_size ) {
+		return new THREE.ParticleBasicMaterial( { 	size: particle_size,
+													color: 0xFFFFFF,
+													map: texture,
+													blending: THREE.AdditiveBlending,
+													vertexColors: true,
+													transparent: true,
+													overdraw: true,
+													depthWrite: false } );
 	}
 }
