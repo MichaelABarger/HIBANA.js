@@ -241,10 +241,11 @@ HIBANA.prototype = {
 				emitter.starting_velocity.push( linear.clone() );
 		} else {
 			for ( var i = 0; i < emitter.particle_count; i++ ) {
-				var angle = Math.random() * emitter.emission_angle * 2 - emitter.emission_angle;
-				emitter.starting_velocity.push( new THREE.Vector3( 	emitter.emission_force * Math.sin( angle ) * Math.sin( angle ),
-																	emitter.emission_force * Math.cos( angle ),
-																	emitter.emission_force * Math.sin( 2 * angle ) / 2 ) );
+				var zenith = Math.random() * emitter.emission_angle * 2 - emitter.emission_angle;
+				var azimuth = Math.random() * Math.PI * 2;
+				emitter.starting_velocity.push( new THREE.Vector3( 	emitter.emission_force * Math.sin(zenith) * Math.sin(azimuth),
+																	emitter.emission_force * Math.cos(zenith),
+																	emitter.emission_force * Math.sin(zenith) * Math.cos(azimuth) ) );
 			}
 		}
 	},
