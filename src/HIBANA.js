@@ -75,40 +75,38 @@ HIBANA = function( scene, parameters ) {
 HIBANA.prototype = {
 
 	constructor: HIBANA,
-	
-	addEmitter: function( parameters ) {
-	
-		parameters = parameters || {};
-		parameters.particle_count = parameters.particle_count || 300;
-		parameters.particle_color = parameters.particle_color || new THREE.Color( 0xFFFFFF );
-		parameters.rate = parameters.rate || 75;
-		parameters.acceleration = parameters.acceleration || new THREE.Vector3( 0.0, 1.0, 0.0 );
-		parameters.particle_life_expectancy_min = parameters.particle_life_expectancy_min || 10;
-		parameters.particle_life_expectancy_range = parameters.particle_life_expectancy_range || 25;
 		
+	addEmitter: function( parameters ) {
 		
 		var emitter = {};
 		emitter.geometry = new THREE.Geometry();
-		emitter.starting_position = THREE.GeometryUtils.randomPointsInGeometry( parameters.mesh.geometry, parameters.particle_count );
-		emitter.original_color = new THREE.Color().copy( parameters.particle_color );
+		
+		parameters = parameters || {};
+		emitter.particle_count = parameters.particle_count || 300;
+		emitter.particle_color = parameters.particle_color || new THREE.Color( 0xFFFFFF );
+		emitter.rate = parameters.rate || 75;
+		emitter.particle_life_expectancy_min = parameters.particle_life_expectancy_min || 10;
+		emitter.particle_life_expectancy_range = parameters.particle_life_expectancy_range || 25;
+		emitter.emission_angle = parameters.emission_angle || 0.0;
+		emitter.emission_force = parameters.emission_force || 1.0;
+		emitter.jitter_factor = parameters.jitter_factor || 0.0;
+		emitter.starting_position = THREE.GeometryUtils.randomPointsInGeometry( parameters.mesh.geometry, emitter.particle_count );
+		emitter.original_color = new THREE.Color().copy( emitter.particle_color );
 		
 		emitter.geometry.colors = [];
-		for ( var i = 0; i < parameters.particle_count; i++ ) {
+		for ( var i = 0; i < emitter.particle_count; i++ ) {
 			emitter.geometry.vertices.push( new THREE.Vector3().copy( this.hidden_point ) );
 			emitter.geometry.colors.push( new THREE.Color().copy( emitter.original_color ) );
 		}
 		emitter.geometry.dynamic = true;
+		
+		this.__generateStartingVelocities( emitter );
 		
 		emitter.system = new THREE.ParticleSystem( emitter.geometry, this.material );
 		emitter.system.position = parameters.mesh.position;
 		emitter.system.sortParticles = true;
 		emitter.active_particles = [];
 		emitter.next_particle = 0;
-		emitter.rate = parameters.rate;
-		emitter.acceleration = parameters.acceleration;
-		emitter.particle_life_expectancy_min = parameters.particle_life_expectancy_min;
-		emitter.particle_life_expectancy_range = parameters.particle_life_expectancy_range;
-		emitter.jitter_factor = parameters.jitter_factor;
 		
 		this.scene.add( emitter.system );
 		this.emitters.push( emitter );
@@ -149,6 +147,20 @@ HIBANA.prototype = {
 		for ( e in this.emitters ) 
 			this.emitters[e].jitter_factor = new_jitter_factor;
 	},
+	
+	setEmissionAngle: function ( new_angle ) {
+		for ( e in this.emitters ) {
+			this.emitters[e].emission_angle = new_angle;
+			this.__generateStartingVelocities( this.emitters[e] );
+		}
+	},
+	
+	setEmissionForce: function ( new_force ) {
+		for ( e in this.emitters ) {
+			this.emitters[e].emission_force = new_force;
+			this.__generateStartingVelocities( this.emitters[e] );
+		}
+	},
 
 	age: function () {
 		if ( this.paused ) return this;
@@ -163,7 +175,7 @@ HIBANA.prototype = {
 				new_particle.vertex.copy( emitter.starting_position[ emitter.next_particle ] );
 				new_particle.age = 0;
 				new_particle.life_expectancy = emitter.particle_life_expectancy_min + Math.random() * emitter.particle_life_expectancy_range;
-				new_particle.velocity = new THREE.Vector3().copy( emitter.acceleration );
+				new_particle.velocity = emitter.starting_velocity[ emitter.next_particle ].clone();
 				
 				emitter.active_particles.push( new_particle );
 				
@@ -199,12 +211,11 @@ HIBANA.prototype = {
 	__jitterVelocity : function ( velocity, emitter ) {
 		if ( !emitter.jitter_factor || velocity.isZero() )
 			return velocity;
-		var perpendicular_U = velocity.clone().crossSelf( this.__UNIT ).normalize();
+		var random_offset = Math.random() * emitter.jitter_factor * 2 - emitter.jitter_factor;
+		var perpendicular_U = velocity.clone().crossSelf( this.__UNIT ).normalize().multiplyScalar( random_offset );
 		if ( perpendicular_U.isZero() )
-			perpendicular_U = velocity.clone().crossSelf( this.__UNIT.negate() ).normalize();
-		var perpendicular_V = perpendicular_U.clone().crossSelf( velocity ).normalize();
-		perpendicular_U.multiplyScalar( Math.random() * emitter.jitter_factor * 2 - emitter.jitter_factor );
-		perpendicular_V.multiplyScalar( Math.random() * emitter.jitter_factor * 2 - emitter.jitter_factor );
+			perpendicular_U = velocity.clone().crossSelf( this.__UNIT.negate() ).normalize().multiplyScalar( random_offset );
+		var perpendicular_V = perpendicular_U.clone().crossSelf( velocity ).normalize().multiplyScalar( random_offset );
 		velocity.addSelf( perpendicular_U );
 		velocity.addSelf( perpendicular_V );
 		return velocity;
@@ -221,6 +232,24 @@ HIBANA.prototype = {
 													overdraw: true,
 													depthWrite: false } );
 	},
+	
+	__generateStartingVelocities : function ( emitter ) {
+		emitter.starting_velocity = [];
+		if ( emitter.emission_angle == 0.0 ) {
+			var linear = new THREE.Vector3( 0, emitter.emission_force, 0 );
+			for ( var i = 0; i < emitter.particle_count; i++ )
+				emitter.starting_velocity.push( linear.clone() );
+		} else {
+			for ( var i = 0; i < emitter.particle_count; i++ ) {
+				var angle = Math.random() * emitter.emission_angle * 2 - emitter.emission_angle;
+				emitter.starting_velocity.push( new THREE.Vector3( 	emitter.emission_force * Math.sin( angle ) * Math.sin( angle ),
+																	emitter.emission_force * Math.cos( angle ),
+																	emitter.emission_force * Math.sin( 2 * angle ) / 2 ) );
+			}
+		}
+	},
 		
-	__UNIT: new THREE.Vector3( 1, 1, 1 ).normalize()
+	__UNIT: new THREE.Vector3( 1, 1, 1 ).normalize(),
+	
+	__UNIT_Y: new THREE.Vector3( 0, 1, 0 )
 }

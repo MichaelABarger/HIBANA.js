@@ -75,6 +75,10 @@ $(window).load( function() {
 	$("#jitter-slider").change( function() {
 		hibana.setJitterFactor( parseFloat( $(this).val() ) );
 	});
+	
+	$("#angle-slider").change( function() {
+		hibana.setEmissionAngle( parseFloat( $(this).val() ) );
+	});
 });
 
 $(window).resize( function() {
@@ -106,7 +110,7 @@ function init3D() {
 	
 	hibana = new HIBANA( scene, { particle_size: 25.0 } );
 	
-	createObjects( 25 );
+	createObjects( 20 );
 	createEmitters();
 	createLights();
 	
