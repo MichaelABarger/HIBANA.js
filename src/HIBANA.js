@@ -8,18 +8,16 @@ HIBANA = function( scene, parameters ) {
 	parameters = parameters || {};
 	this.scene = scene;
 	this.hidden_point = parameters.hidden_point || new THREE.Vector3( -1000, -1000, -1000 );
-	this.texture = parameters.texture || __makeDefaultTexture();
 	this.paused = parameters.paused || true;
 	this.particle_size = parameters.particle_size || 4.0;
+	this.texture = parameters.texture || __makeDefaultTexture();
 	
 	// thanks to Alteredq for inspiration on particle shader code!
 	this.vertex_shader =
 		"uniform float amplitude;" +
 		"attribute float size;" +
 		"attribute vec3 custom_color;" +
-		
 		"varying vec3 vColor" +
-		
 		"void main() {" +
 			"vertex_color = custom_color;" +
 			"vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );" +
@@ -49,8 +47,8 @@ HIBANA = function( scene, parameters ) {
 	
 	function __makeDefaultTexture () {
 		var canvas = document.createElement( 'canvas' );
-		canvas.width = 16;
-		canvas.height = 16;
+		canvas.width = 24;
+		canvas.height = 24;
 
 		var context = canvas.getContext( '2d' );
 		var gradient = context.createRadialGradient( canvas.width / 2, canvas.height / 2, 0, canvas.width / 2, canvas.height / 2, canvas.width / 2 );
@@ -78,7 +76,7 @@ HIBANA.prototype = {
 	addEmitter: function( parameters ) {
 	
 		parameters = parameters || {};
-		parameters.particle_count = parameters.particle_count || 200;
+		parameters.particle_count = parameters.particle_count || 300;
 		parameters.particle_color = parameters.particle_color || new THREE.Color( 0xFFFFFF );
 		parameters.rate = parameters.rate || 75;
 		parameters.acceleration = parameters.acceleration || new THREE.Vector3( 0, 0.25, 0 );
@@ -126,7 +124,7 @@ HIBANA.prototype = {
 	},
 	
 	setParticleSize: function ( new_size ) {
-		this.material.size = new_size;
+		this.particle_size = this.material.size = new_size;
 	},
 	
 	setRate: function ( new_rate ) {
@@ -139,7 +137,7 @@ HIBANA.prototype = {
 		
 		__generateParticles = function( emitter ) {
 			var r = 100 * Math.random();
-			for ( var i = 0; i < Math.floor( r / (100.5 - emitter.rate)); i++ ) {
+			for ( var i = 0; i < Math.floor( r / (101.0 - emitter.rate)); i++ ) {
 				var new_particle = {};
 				
 				new_particle.vertex = emitter.geometry.vertices[ emitter.next_particle ];
@@ -182,8 +180,8 @@ HIBANA.prototype = {
 		return this;
 	},
 	
-	__makeMaterial: function ( texture, particle_size ) {
-		return new THREE.ParticleBasicMaterial( { 	size: particle_size,
+	__makeMaterial: function ( texture ) {
+		return new THREE.ParticleBasicMaterial( { 	size: this.particle_size,
 													color: 0xFFFFFF,
 													map: texture,
 													blending: THREE.AdditiveBlending,

@@ -61,7 +61,7 @@ $(window).load( function() {
 	});
 	
 	$("#size-slider").change( function() {
-		hibana.setParticleSize( parseInt( $(this).val() ) );
+		hibana.setParticleSize( parseFloat( $(this).val() ) );
 	});
 	
 	$("#rate-slider").change( function() {
@@ -69,7 +69,6 @@ $(window).load( function() {
 	});
 });
 
-// ****** Makes sure the 3D draws properly even if the browser window is resized
 $(window).resize( function() {
 
 	WIDTH = $("#main3d").width(); HEIGHT = $("#main3d").height();
@@ -82,7 +81,6 @@ $(window).resize( function() {
 
 
 
-// ****** Initializes the 3D environment
 function init3D() {
 
 	// initialize 3d globals
@@ -91,7 +89,6 @@ function init3D() {
 	// initialize renderer
 	renderer = new THREE.WebGLRenderer( { antialias : true, shadowMapEnabled : true, shadowMapSoft : true, gammaInput : true, gammaOutput : true } );
     renderer.setSize( WIDTH, HEIGHT );
-	renderer.setClearColorHex( 0xFFFFFF, 1 );
     $("#main3d").append( renderer.domElement );
 
     scene = new THREE.Scene();
@@ -99,7 +96,7 @@ function init3D() {
 	createRoom();
 	createCamera();	
 	
-	hibana = new HIBANA( scene );
+	hibana = new HIBANA( scene, { particle_size: 25.0 } );
 	
 	createObjects( 25 );
 	createEmitters();
