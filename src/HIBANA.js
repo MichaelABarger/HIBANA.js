@@ -11,6 +11,8 @@ HIBANA = function( scene, parameters ) {
 	this.paused = parameters.paused || true;
 	this.particle_size = parameters.particle_size || 4.0;
 	this.texture = parameters.texture || __makeDefaultTexture();
+	this.global_force = parameters.global_force || new THREE.Vector3( 0.0, -0.05, 0.0 );
+	this.global_force_is_active = true;
 	
 	// thanks to Alteredq for inspiration on particle shader code!
 	this.vertex_shader =
@@ -52,9 +54,10 @@ HIBANA = function( scene, parameters ) {
 
 		var context = canvas.getContext( '2d' );
 		var gradient = context.createRadialGradient( canvas.width / 2, canvas.height / 2, 0, canvas.width / 2, canvas.height / 2, canvas.width / 2 );
-		gradient.addColorStop( 0, 'rgba(255,255,255,.8)' );
-		gradient.addColorStop( 0.2, 'rgba(255,255,255,.6)' );
-		gradient.addColorStop( 0.4, 'rgba(255,255,255,.3)' );
+		gradient.addColorStop( 0, 'rgba(255,255,255,1.0)' );
+		gradient.addColorStop( 0.15, 'rgba(255,255,255,.9)' );
+		gradient.addColorStop( 0.3, 'rgba(255,255,255,.6)' );
+		gradient.addColorStop( 0.5, 'rgba(255,255,255,.3)' );
 		gradient.addColorStop( 1, 'rgba(0,0,0,0)' );
 
 		context.fillStyle = gradient;
@@ -79,9 +82,10 @@ HIBANA.prototype = {
 		parameters.particle_count = parameters.particle_count || 300;
 		parameters.particle_color = parameters.particle_color || new THREE.Color( 0xFFFFFF );
 		parameters.rate = parameters.rate || 75;
-		parameters.acceleration = parameters.acceleration || new THREE.Vector3( 0, 0.25, 0 );
-		parameters.particle_life_expectancy_min = parameters.particle_life_expectancy_min || 5;
-		parameters.particle_life_expectancy_range = parameters.particle_life_expectancy_range || 35;
+		parameters.acceleration = parameters.acceleration || new THREE.Vector3( 0.0, 1.0, 0.0 );
+		parameters.particle_life_expectancy_min = parameters.particle_life_expectancy_min || 10;
+		parameters.particle_life_expectancy_range = parameters.particle_life_expectancy_range || 25;
+		
 		
 		var emitter = {};
 		emitter.geometry = new THREE.Geometry();
@@ -104,6 +108,7 @@ HIBANA.prototype = {
 		emitter.acceleration = parameters.acceleration;
 		emitter.particle_life_expectancy_min = parameters.particle_life_expectancy_min;
 		emitter.particle_life_expectancy_range = parameters.particle_life_expectancy_range;
+		emitter.jitter_factor = parameters.jitter_factor;
 		
 		this.scene.add( emitter.system );
 		this.emitters.push( emitter );
@@ -130,6 +135,19 @@ HIBANA.prototype = {
 	setRate: function ( new_rate ) {
 		for ( e in this.emitters )
 			this.emitters[e].rate = new_rate;
+	},
+	
+	setGlobalForce: function ( new_force ) {
+		this.global_force = new_force;
+	},
+	
+	toggleGlobalForce: function () {
+		this.global_force_is_active = !this.global_force_is_active;
+	},
+	
+	setJitterFactor: function ( new_jitter_factor ) {
+		for ( e in this.emitters ) 
+			this.emitters[e].jitter_factor = new_jitter_factor;
 	},
 
 	age: function () {
@@ -160,25 +178,38 @@ HIBANA.prototype = {
 		for ( e in this.emitters ) {
 			__generateParticles( this.emitters[e] );
 			for ( p in this.emitters[e].active_particles ) {
-				if ( ++this.emitters[e].active_particles[p].age > this.emitters[e].active_particles[p].life_expectancy ) {
-					this.emitters[e].active_particles[p].vertex.copy( this.hidden_point );
-					this.emitters[e].active_particles[p].color.copy( this.emitters[e].original_color );
+				var particle = this.emitters[e].active_particles[p];
+				if ( ++particle.age > particle.life_expectancy ) {
+					particle.vertex.copy( this.hidden_point );
+					particle.color.copy( this.emitters[e].original_color );
 					this.emitters[e].active_particles.splice( p, 1 );
 				} else {
-					// position/velocity change
-					/*
-					emitter.active_particles[p].velocity.x += PARTICLE_DRIFT_OFFSET - PARTICLE_DRIFT * Math.random();
-					emitter.active_particles[p].velocity.y -= PARTICLE_GRAVITY;
-					emitter.active_particles[p].velocity.z += PARTICLE_DRIFT_OFFSET - PARTICLE_DRIFT * Math.random();
-					*/
-					this.emitters[e].active_particles[p].vertex.addSelf( this.emitters[e].active_particles[p].velocity );
+					this.__jitterVelocity( particle.velocity, this.emitters[e] );
+					particle.vertex.addSelf( particle.velocity );
+					if ( this.global_force_is_active )
+						particle.velocity.addSelf( this.global_force );
 				}
 			}
 			this.emitters[e].geometry.verticesNeedUpdate = true;
-			this.emitters[e].geometry.colorsNeedUpdate = false;
+			//this.emitters[e].geometry.colorsNeedUpdate = false;
 		}	
 		return this;
 	},
+	
+	__jitterVelocity : function ( velocity, emitter ) {
+		if ( !emitter.jitter_factor || velocity.isZero() )
+			return velocity;
+		var perpendicular_U = velocity.clone().crossSelf( this.__UNIT ).normalize();
+		if ( perpendicular_U.isZero() )
+			perpendicular_U = velocity.clone().crossSelf( this.__UNIT.negate() ).normalize();
+		var perpendicular_V = perpendicular_U.clone().crossSelf( velocity ).normalize();
+		perpendicular_U.multiplyScalar( Math.random() * emitter.jitter_factor * 2 - emitter.jitter_factor );
+		perpendicular_V.multiplyScalar( Math.random() * emitter.jitter_factor * 2 - emitter.jitter_factor );
+		velocity.addSelf( perpendicular_U );
+		velocity.addSelf( perpendicular_V );
+		return velocity;
+	},
+
 	
 	__makeMaterial: function ( texture ) {
 		return new THREE.ParticleBasicMaterial( { 	size: this.particle_size,
@@ -189,5 +220,7 @@ HIBANA.prototype = {
 													transparent: true,
 													overdraw: true,
 													depthWrite: false } );
-	}
+	},
+		
+	__UNIT: new THREE.Vector3( 1, 1, 1 ).normalize()
 }

@@ -60,12 +60,20 @@ $(window).load( function() {
 		areOrbiting = !areOrbiting;
 	});
 	
+	$("#gravity").click( function() {
+		hibana.toggleGlobalForce();
+	});
+	
 	$("#size-slider").change( function() {
-		hibana.setParticleSize( parseFloat( $(this).val() ) );
+		hibana.setParticleSize( parseInt( $(this).val() ) );
 	});
 	
 	$("#rate-slider").change( function() {
 		hibana.setRate( parseInt( $(this).val() ) );
+	});
+	
+	$("#jitter-slider").change( function() {
+		hibana.setJitterFactor( parseFloat( $(this).val() ) );
 	});
 });
 
@@ -139,7 +147,7 @@ function createObjects( objectCount ) {
 
 function createEmitters() {
 	for ( o in objects ) {
-		hibana.addEmitter( { mesh: objects[o], particle_color: new THREE.Color( 0xff9100 ) } )
+		hibana.addEmitter( { mesh: objects[o], particle_color: new THREE.Color( 0xff9100 ), jitter_factor: 0.1 } )
 	}
 }
 
@@ -215,7 +223,7 @@ function decayCameraRotationalVelocity() {
 }
 
 function orbitObjects() {
-	var THETA = Math.PI / 180.0;
+	var THETA = Math.PI / 200.0;
 	if ( !areOrbiting )
 		return;
 	for ( o in objects ) {
