@@ -36,11 +36,11 @@ and if you want to add options parameters:
 
 where `{ parameters }` is a bracketed list of any of the following options:
 
-- *`hidden\_point: `* THREE.Vector3 object that is where inactive particles will go; choose a point that won't be visible! The default is `(-1000, -1000, -1000)`.
-- *`paused: `* Whether or not HIBANA will start off in a paused state (regarding particle play-back). The default is `true`!
-- *`particle\_size: `* Initial size of each particle. The default is `4.0`.
-- *`texture: `* Any THREE.Texture that you might want to use instead of the default HTML5 canvas-generated one.
-- *`global\_force: `* Initial global force for the HIBANA system. Normally, this would be used to simulate gravity. Thus, the default is `(0, -0.05, 0)`.
+- `hidden_point: ` THREE.Vector3 object that is where inactive particles will go; choose a point that won't be visible! The default is `(-1000, -1000, -1000)`.
+- `paused: ` Whether or not HIBANA will start off in a paused state (regarding particle play-back). The default is `true`!
+- `particle_size: ` Initial size of each particle. The default is `4.0`.
+- `texture: ` Any THREE.Texture that you might want to use instead of the default HTML5 canvas-generated one.
+- `global_force: ` Initial global force for the HIBANA system. Normally, this would be used to simulate gravity. Thus, the default is `(0, -0.05, 0)`.
 
 #### Add emitters to the HIBANA object ####
 
@@ -50,13 +50,13 @@ After creating a `HIBANA` object, add emitters to it by calling the `addEmitter`
 	
 Where `object` is any THREE.Object3D and `{ parameters }` is a bracketed list of the following options:
 
-- *`particle\_count: `* Total number of particles that will be allocated for this emitter. They won't necessarily all be showing all the time! The default is 300; you might want to lower this if there are performance issues, or raise it if you are using a fast emitter rate.
-- *`particle\_color: `* The THREE.Color that will be used to tint your texture! The default is pure white.
+- *`particle_count: `* Total number of particles that will be allocated for this emitter. They won't necessarily all be showing all the time! The default is 300; you might want to lower this if there are performance issues, or raise it if you are using a fast emitter rate.
+- *`particle_color: `* The THREE.Color that will be used to tint your texture! The default is pure white.
 - *`rate: `* Emitter rate on a scale of 0 to 100. The default is 75.
-- *`particle\_life_expectancy_min: `* Minimum amount of frames that a particle will remain alive. The default is 10.
-- *`particle\_life_expectancy_range: `* Maximum amount of frames that a particle might live *after* meeting the minimum life expectancy. The default is 25.
-- *`emission\_angle: `* Angle in radians (from 0 to PI) from vertical that the emitter will emit particles. 0 represents straight up; PI represents a spherical dispersal; anything until PI/2 is more or less conical. The default is 0: straight up.
-- *`emission\_force: `* Amount of force with which particles will be emitted from the emitter. The default is 1.
+- *`particle_life_expectancy_min: `* Minimum amount of frames that a particle will remain alive. The default is 10.
+- *`particle_life_expectancy_range: `* Maximum amount of frames that a particle might live *after* meeting the minimum life expectancy. The default is 25.
+- *`emission_angle: `* Angle in radians (from 0 to PI) from vertical that the emitter will emit particles. 0 represents straight up; PI represents a spherical dispersal; anything until PI/2 is more or less conical. The default is 0: straight up.
+- *`emission_force: `* Amount of force with which particles will be emitted from the emitter. The default is 1.
 - *`jitter_factor: `* Factor by which particles will randomly move on a perpendicular plane to their path. The default is 0, or no jitter.
 
 #### Controlling the HIBANA system ####
@@ -65,5 +65,5 @@ Controlling a HIBANA system after it has been initialized and the emitters have 
 
 - *`pause()`, `play()`, and `togglePause()`* control whether the status of the particle-system animations.
 - *`set` and `get` methods for all of the above-listed HIBANA system and emitter options. After the `set` or `get` prefix, the option name follows in Camel Case.   
-For example, the setter method for the system's `particle\_size` property is `setParticleSize( new_size )`, and its getter is `getParticleSize()`. 
+For example, the setter method for the system's `particle_size` property is `setParticleSize( new_size )`, and its getter is `getParticleSize()`. 
 Currently, setting one of the emitter properties will set that property to all emitters in the current HIBANA system, for ease of use.
