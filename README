@@ -1,3 +1,0 @@
-HIBANA.js
-
-HIBANA.js is an open-source Javascript library extension that extends the popular WebGL 3D library Three.js with a flexible and powerful particle engine. HIBANA means "spark" in Japanese: HIBANA.js's spiritual successor is the deprecated library Sparks.js. Goals include creating a programmer-friendly interface that offers a customizable physics model, and ultimately to allow for full hardware acceleration.

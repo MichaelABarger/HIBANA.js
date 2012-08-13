@@ -35,6 +35,7 @@ and if you want to add options parameters:
 	var hibana = new HIBANA( scene, { parameters } );
 
 where `{ parameters }` is a bracketed list of any of the following options:
+
 - *`hidden_point: `* is a THREE.Vector3 object that is where inactive particles will go; choose a point that won't be visible! The default is `(-1000, -1000, -1000)`.
 - *`paused: `* is whether or not HIBANA will start off in a paused state (regarding particle play-back). The default is `true`!
 - *`particle_size: `* is the initial size of each particle. The default is `4.0`.
