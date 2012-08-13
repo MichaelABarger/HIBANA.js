@@ -64,6 +64,6 @@ Where `object` is any THREE.Object3D and `{ parameters }` is a bracketed list of
 Controlling a HIBANA system after it has been initialized and the emitters have been added is simple: you can toggle pause/play on the particle animations, or change the system/emitter properties at any time.
 
 - *`pause()`, `play()`, and `togglePause()`* control whether the status of the particle-system animations.
-- *`set`- and `get`- methods for all of the above-listed HIBANA system and emitter options. After the `set`- or `get`- prefix, the option name follows in Camel Case.   
-For example, the setter method for the system's `particle_size` property is `setParticleSize( new_size )`.   
+- *`set` and `get` methods for all of the above-listed HIBANA system and emitter options. After the `set` or `get` prefix, the option name follows in Camel Case.   
+For example, the setter method for the system's `particle_size` property is `setParticleSize( new_size )`, and its getter is `getParticleSize()`. 
 Currently, setting one of the emitter properties will set that property to all emitters in the current HIBANA system, for ease of use.
