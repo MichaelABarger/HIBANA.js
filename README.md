@@ -13,6 +13,10 @@ Goals include: creating a clean, programmer-friendly interface, like that of Thr
 
 Please see our Open Source [MIT License](https://https://github.com/MichaelABarger/HIBANA.js/blob/master/LICENSE). Please read it carefully before you use, modify, or reproduce this open-source code in any way.
 
+### DEMO ###
+An example can be seen [here](https://michaelabarger.github.com/examples/HIBANA-test.html).
+
+
 ### USAGE ###
 
 Please note that the project is still in development, and the API interface is subject to change at any time until further notice. However, the following does apply to the current build.
