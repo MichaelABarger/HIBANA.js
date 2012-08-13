@@ -9,20 +9,18 @@ HIBANA means "spark" in Japanese: the creation of HIBANA.js was inspired by a pr
 
 Goals include: creating a clean, programmer-friendly interface, like that of Three.js; flexibility to be used in the majority of common applications without much fuss; particle physics, including global forces, force fields, random variance, and collision; and custom, FBO-driven full hardware acceleration for all physics.
 
-
 #### What is it that makes HIBANA.js special? ####
 HIBANA.js allows you to set up your particle emitters by attaching them to the existing THREE.Object3D architecture.   
 Do you want your particles to begin in the shape of a sphere? Or a cube? Just add an emitter to any Three.js Object3D that you've created, and the particles generate based on its shape.  
 Want to move and transform your emitter? Just move and transform the object you've attached it to, using an API you're already familiar with.
 In this way, HIBANA.js strives to streamline the ease the integration of particle systems in any Three.js architecture.
 
-
 ### LICENSE ###
 
-Please see our Open Source [MIT License](https://https://github.com/MichaelABarger/HIBANA.js/blob/master/LICENSE). Please read it carefully before you use, modify, or reproduce this open-source code in any way.
+Please see our Open Source [MIT License](https://github.com/MichaelABarger/HIBANA.js/blob/master/LICENSE). Please read it carefully before you use, modify, or reproduce this open-source code in any way.
 
 ### DEMO ###
-An example can be seen [here](michaelabarger.github.com/examples/HIBANA-test.html).
+An example can be seen [here](http://michaelabarger.github.com/examples/HIBANA-test.html).
 
 
 ### USAGE ###
