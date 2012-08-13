@@ -208,8 +208,7 @@ HIBANA.prototype = {
 			
 			return this;
 		}
-
-		
+	
 		for ( e in this.emitters ) {
 			__generateParticles( this.emitters[e] );
 			for ( p in this.emitters[e].active_particles ) {
@@ -243,7 +242,6 @@ HIBANA.prototype = {
 		velocity.addSelf( perpendicular_V );
 		return velocity;
 	},
-
 	
 	__makeMaterial: function ( texture ) {
 		return new THREE.ParticleBasicMaterial( { 	size: this.particle_size,
@@ -273,7 +271,5 @@ HIBANA.prototype = {
 		}
 	},
 		
-	__UNIT: new THREE.Vector3( 1, 1, 1 ).normalize(),
-	
-	__UNIT_Y: new THREE.Vector3( 0, 1, 0 )
+	__UNIT: new THREE.Vector3( 1, 1, 1 ).normalize()
 }
