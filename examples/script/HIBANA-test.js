@@ -172,7 +172,7 @@ function createObjects( objectCount ) {
 
 function createEmitters() {
 	for ( o in objects ) {
-		hibana.addEmitter( { mesh: objects[o], particle_color: new THREE.Color( 0xff9100 ), jitter_factor: 0.1 } )
+		hibana.addEmitter( objects[o], { particle_color: new THREE.Color( 0xff9100 ), jitter_factor: 0.1 } )
 	}
 }
 
