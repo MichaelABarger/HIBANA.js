@@ -240,6 +240,20 @@ HIBANA.prototype = {
 		}	
 		return this;
 	},
+
+	clearAll: function () {
+		for ( e in this.emitters )
+			this.__clearAll( this.emitters[e] );
+	},
+
+	__clearAll: function ( emitter ) {
+		for ( p in emitter.active_particles ) {
+			emitter.active_particles[p].vertex.copy( this.hidden_point );
+			emitter.active_particles[p].color.copy( emitter.original_color );
+		}
+		emitter.active_particles = [];
+	},
+			
 	
 	__jitterVelocity : function ( velocity, emitter ) {
 		if ( !emitter.jitter_factor || velocity.isZero() )
