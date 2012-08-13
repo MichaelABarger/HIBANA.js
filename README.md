@@ -2,7 +2,6 @@ HIBANA.js
 =========
 
 #### 3D particle engine extension for Three.js ####
-
 HIBANA.js is an open-source Javascript library extension that extends the popular WebGL 3D library Three.js with a flexible and powerful particle engine. 
 
 HIBANA means "spark" in Japanese: the creation of HIBANA.js was inspired by a predecessor library called Jerome Etienne's Sparks.js particle engine.
@@ -15,8 +14,14 @@ Do you want your particles to begin in the shape of a sphere? Or a cube? Just ad
 Want to move and transform your emitter? Just move and transform the object you've attached it to, using an API you're already familiar with.
 In this way, HIBANA.js strives to streamline the ease the integration of particle systems in any Three.js architecture.
 
-### LICENSE ###
+#### TO DO ####
+- API changes in how emitters are handled: passed as objects to the client to manage emitters' individual properties?
+- addition of collision detection to facilitate force fields and collision physics; HIBANA will store its emitters and the fields/collision-objects that may affect them.
+- moving all physics calculations to GPU
+- custom rendering shaders to allow for particle opacity, color, and size to change over time
+- custom rendering shaders to allow for distance-from-the-camera to affect how particles are rendered
 
+### LICENSE ###
 Please see our Open Source [MIT License](https://github.com/MichaelABarger/HIBANA.js/blob/master/LICENSE). Please read it carefully before you use, modify, or reproduce this open-source code in any way.
 
 ### DEMO ###
@@ -60,7 +65,7 @@ After creating a `HIBANA` object, add emitters to it by calling the `addEmitter`
 	
 Where `object` is any THREE.Object3D and `{ parameters }` is a bracketed list of the following options:
 
-- `particle_count: ` Total number of particles that will be allocated for this emitter. They won't necessarily all be showing all the time! The default is 300; you might want to lower this if there are performance issues, or raise it if you are using a fast emitter rate.
+- `particle_count: ` Total number of particles that will be allocated for this emitter. They won't necessarily all be showing all the time! The default is 400; you might want to lower this if there are performance issues, or raise it if you are using a fast emitter rate.
 - `particle_color: ` The THREE.Color that will be used to tint your texture! The default is pure white.
 - `rate: ` Emitter rate on a scale of 0 to 100. The default is 75.
 - `particle_life_expectancy_min: ` Minimum amount of frames that a particle will remain alive. The default is 10.
