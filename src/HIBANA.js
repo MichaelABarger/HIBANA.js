@@ -99,7 +99,7 @@ HIBANA.prototype = {
 
 	constructor: HIBANA,
 		
-	addEmitter: function( parameters ) {
+	addEmitter: function( object, parameters ) {
 		
 		var emitter = {};
 		emitter.geometry = new THREE.Geometry();
@@ -113,7 +113,7 @@ HIBANA.prototype = {
 		emitter.emission_angle = parameters.emission_angle || 0.0;
 		emitter.emission_force = parameters.emission_force || 1.0;
 		emitter.jitter_factor = parameters.jitter_factor || 0.0;
-		emitter.starting_position = THREE.GeometryUtils.randomPointsInGeometry( parameters.mesh.geometry, emitter.particle_count );
+		emitter.starting_position = THREE.GeometryUtils.randomPointsInGeometry( object.geometry, emitter.particle_count );
 		emitter.original_color = new THREE.Color().copy( emitter.particle_color );
 		
 		emitter.geometry.colors = [];
@@ -126,7 +126,7 @@ HIBANA.prototype = {
 		this.__generateStartingVelocities( emitter );
 		
 		emitter.system = new THREE.ParticleSystem( emitter.geometry, this.material );
-		emitter.system.position = parameters.mesh.position;
+		emitter.system.position = object.position;
 		emitter.system.sortParticles = true;
 		emitter.active_particles = [];
 		emitter.next_particle = 0;
