@@ -26,10 +26,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-HIBANA = function( scene, parameters ) {
+HIBANA = function( parameters ) {
 
 	parameters = parameters || {};
-	this.scene = scene;
 	this.hidden_point = parameters.hidden_point || new THREE.Vector3( -1000, -1000, -1000 );
 	this.paused = parameters.paused || true;
 	this.particle_size = parameters.particle_size || 2.0;
@@ -132,7 +131,7 @@ HIBANA.prototype = {
 		emitter.active_particles = [];
 		emitter.next_particle = 0;
 		
-		this.scene.add( emitter.system );
+		object.parent.add( emitter.system );
 		this.emitters.push( emitter );
 		
 		return this;

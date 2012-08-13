@@ -143,7 +143,7 @@ function init3D() {
 	createRoom();
 	createCamera();	
 	
-	hibana = new HIBANA( scene );
+	hibana = new HIBANA();
 	
 	createObjects( 10 );
 	createEmitters();
