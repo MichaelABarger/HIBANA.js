@@ -114,7 +114,7 @@ $(window).load( function() {
 	});
 
 	$("#clear-all").click( function() {
-		hibana.clearAll();
+		hibana.all( "__clearAll" );
 	});
 });
 
