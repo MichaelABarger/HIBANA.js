@@ -182,11 +182,7 @@ function createObjects( objectCount ) {
 		var object = new THREE.Mesh( geo, new THREE.MeshPhongMaterial( { color: 0xFF0000, metal: true } ) );
 		object.position = createRandomPositionWithinRoom();
 		object.r = Math.sqrt( object.position.x * object.position.x + object.position.z * object.position.z );
-		object.theta = Math.atan( object.position.z / object.position.x );
-		if ( object.position.x < 0 )
-			object.theta += ( object.position.z >= 0 ) ? Math.PI : -Math.PI;
-		else if ( object.position.x == 0 ) 
-			object.theta = ( object.position.z == 0 ) ? 0 : ( object.position.z > 0 ) ? Math.PI / 2 : -(Math.PI / 2);
+		object.theta = Math.atan2( object.position.z, object.position.x );
 		scene.add( object );
 		objects.push( object );
 	}
