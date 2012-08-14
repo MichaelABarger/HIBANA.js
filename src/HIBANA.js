@@ -29,9 +29,6 @@ THE SOFTWARE.
 HIBANA = function( parameters ) {
 
 	parameters = parameters || {};
-	this.paused = parameters.paused || true;
-	this.particle_size = parameters.particle_size || 2.0;
-	this.texture = parameters.texture || __makeDefaultTexture();
 	this.global_force = parameters.global_force || new THREE.Vector3( 0.0, -0.05, 0.0 );
 	this.global_force_is_active = true;
 	
@@ -115,6 +112,10 @@ HIBANA.prototype = {
 		emitter.starting_position = THREE.GeometryUtils.randomPointsInGeometry( object.geometry, emitter.particle_count );
 		emitter.original_color = new THREE.Color().copy( emitter.particle_color );
 		emitter.hidden_point = parameters.hidden_point || new THREE.Vector3( -1000, -1000, -1000 );
+
+		emitter.paused = parameters.paused || true;
+		emitter.particle_size = parameters.particle_size || 2.0;
+		emitter.texture = parameters.texture || __makeDefaultTexture();
 
 		emitter.geometry.colors = [];
 		for ( var i = 0; i < emitter.particle_count; i++ ) {
@@ -246,8 +247,12 @@ HIBANA.prototype = {
 	},
 
 	all: function( method_name ) {
+		var result = [];
+
 		for ( e in this.emitters )
-			this[method_name]( this.emitters[e] );
+			result.push( this[method_name]( this.emitters[e] ) );
+
+		return result;
 	},
 
 	__clearAll: function ( emitter ) {
