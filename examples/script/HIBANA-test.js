@@ -73,7 +73,7 @@ $(window).load( function() {
 	});
 	
 	$("#play-pause").click( function() {
-		HIBANA.emitters.all("pause");
+		HIBANA.Emitters.all("pause");
 	});
 	
 	$("#show-hide").click( function() {
@@ -86,39 +86,39 @@ $(window).load( function() {
 	});
 	
 	$("#gravity").click( function() {
-		HIBANA.global.toggle();
+		HIBANA.Universal.toggle();
 	});
 	
 	$("#size-slider").change( function() {
-		HIBANA.emitters.all("setParticleSize", parseFloat( $(this).val() ) );
+		HIBANA.Emitters.all("setParticleSize", parseFloat( $(this).val() ) );
 	});
 	
 	$("#rate-slider").change( function() {
-		HIBANA.emitters.all("setRate", parseInt( $(this).val() ) );
+		HIBANA.Emitters.all("setRate", parseInt( $(this).val() ) );
 	});
 	
 	$("#jitter-slider").change( function() {
-		HIBANA.emitters.all("setJitter", parseFloat( $(this).val() ) );
+		HIBANA.Emitters.all("setJitter", parseFloat( $(this).val() ) );
 	});
 	
 	$("#angle-slider").change( function() {
-		HIBANA.emitters.all("setAngle", parseFloat( $(this).val() ) );
+		HIBANA.Emitters.all("setAngle", parseFloat( $(this).val() ) );
 	});
 	
 	$("#life-min-slider").change( function() {
-		HIBANA.emitters.all("setParticleLifetimeMin", parseInt( $(this).val() ) );
+		HIBANA.Emitters.all("setParticleLifetimeMin", parseInt( $(this).val() ) );
 	});
 	
 	$("#life-range-slider").change( function() {
-		HIBANA.emitters.all("setParticleLifetimeRange", parseFloat( $(this).val() ) );
+		HIBANA.Emitters.all("setParticleLifetimeRange", parseFloat( $(this).val() ) );
 	});
 	
 	$("#force-slider").change( function() {
-		HIBANA.emitters.all("setForce", parseFloat( $(this).val() ) );
+		HIBANA.Emitters.all("setForce", parseFloat( $(this).val() ) );
 	});
 
 	$("#clear-all").click( function() {
-		HIBANA.emitters.all( "clear" );
+		HIBANA.Emitters.all( "clear" );
 	});
 });
 
@@ -197,7 +197,7 @@ function createEmitters() {
 					new THREE.Color( 0x00fffb ) ]
 	for ( o in objects ) {
 		var c = Math.round( Math.random() * 5 );
-		HIBANA.emitters.add( objects[o], { particle_color: colors[c], jitter: 0.1 } );
+		HIBANA.Emitters.add( objects[o], { particle_color: colors[c], jitter: 0.1 } );
 	}
 }
 

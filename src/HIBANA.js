@@ -28,9 +28,9 @@ THE SOFTWARE.
 
 var HIBANA = {
 
-	age: function () { this.emitters.all( "age" ); },
+	age: function () { this.Emitters.all( "age" ); },
 	
-	emitters: { 
+	Emitters: { 
 		ref: [],
 
 		all: function ( method_name, arg ) {
@@ -58,7 +58,7 @@ var HIBANA = {
 	},
 		
 		
-	global:	{
+	Universal:	{
 		force: new THREE.Vector3( 0.0, -0.05, 0.0 ),
 		
 		is_active: false,
@@ -68,6 +68,8 @@ var HIBANA = {
 		get: function() { return this.force; },
 	
 		add: function( force ) { this.force.addSelf( force ); return this; },
+
+		remove: function( force ) { this.force.subSelf( force ); return this; },
 		
 		activate: function() { this.is_active = true; },
 		

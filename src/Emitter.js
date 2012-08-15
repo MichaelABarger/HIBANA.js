@@ -188,8 +188,8 @@ HIBANA.Emitter.prototype = {
 			} else {
 				this.__jitterVelocity( particle.velocity );
 				particle.vertex.addSelf( particle.velocity );
-				if ( HIBANA.global.is_active )
-					particle.velocity.addSelf( HIBANA.global.force );
+				if ( HIBANA.Universal.is_active )
+					particle.velocity.addSelf( HIBANA.Universal.force );
 			}
 		}
 	},
