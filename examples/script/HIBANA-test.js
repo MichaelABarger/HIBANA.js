@@ -31,6 +31,7 @@ var CAMERA_HOME = new THREE.Vector3( 0, 0, ROOM_DIM / 2 - OBJECT_SIZE );
 var CAMERA_TARGET = new THREE.Vector3( 0, 0, 0 );
 var AZIMUTH_RANGE = OBJECT_SIZE; 
 var MOUSE_SPEED = 0.0001
+var INCREMENT = Math.PI / 200.0;
 
 // global variables
 var azimuth = 0, zenith = 0, mouse_x = 0, mouse_y = 0, mouse_decay = true, mouse_is_down = false;
@@ -150,7 +151,6 @@ function init3D() {
 	createLights();
 	
 	animate();
-	
 }
 
 function createRoom() {
@@ -180,9 +180,10 @@ function createObjects( objectCount ) {
 			? new THREE.SphereGeometry( OBJECT_SIZE, OBJECT_DETAIL, OBJECT_DETAIL )
 			: new THREE.CubeGeometry( OBJECT_SIZE, OBJECT_SIZE, OBJECT_SIZE );
 		var object = new THREE.Mesh( geo, new THREE.MeshPhongMaterial( { color: 0xFF0000, metal: true } ) );
-		object.position = createRandomPositionWithinRoom();
-		object.r = Math.sqrt( object.position.x * object.position.x + object.position.z * object.position.z );
-		object.theta = Math.atan2( object.position.z, object.position.x );
+		object.r = Math.random() * (ROOM_DIM / 2 - OBJECT_SIZE);
+		object.theta = Math.random() * 2 * Math.PI;
+		object.position.y = Math.random() * (ROOM_DIM / 2 - OBJECT_SIZE);
+		updatePolarPositionToCartesian( object );
 		scene.add( object );
 		objects.push( object );
 	}
@@ -198,19 +199,6 @@ function createEmitters() {
 		var c = Math.round( Math.random() * 5 );
 		hibana.addEmitter( objects[o], { particle_color: colors[c], jitter_factor: 0.1 } )
 	}
-}
-
-function createRandomPositionWithinRoom() {
-	var x = createRandomCoordinateWithinRoom();
-	var y = createRandomCoordinateWithinRoom();
-	var z = createRandomCoordinateWithinRoom();
-	
-	return new THREE.Vector3( x, y, z );
-}
-
-function createRandomCoordinateWithinRoom() {
-	var maxDistanceFromCenter = ROOM_DIM / 2 - OBJECT_SIZE * 2;
-	return Math.random() * 2 * maxDistanceFromCenter - maxDistanceFromCenter;
 }
 
 function createLights() {
@@ -269,14 +257,18 @@ function decayCameraRotationalVelocity() {
 	}
 }
 
-function orbitObjects() {
-	var INCREMENT = Math.PI / 200.0;
 
+function orbitObjects() {
 	if ( !areOrbiting )
 		return;
 	for ( o in objects ) {
-		objects[o].position.x = objects[o].r * Math.cos( objects[o].theta );
-		objects[o].position.z = objects[o].r * Math.sin( objects[o].theta );
 		objects[o].theta += INCREMENT;
+		updatePolarPositionToCartesian( objects[o] );
 	}	
+}
+
+function updatePolarPositionToCartesian( o ) {
+	o.position.x = o.r * Math.cos( o.theta );
+	o.position.z = o.r * Math.sin( o.theta );
+	return o;
 }
