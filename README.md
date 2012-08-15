@@ -20,7 +20,6 @@ All files in this repository are copyright Michael A. Barger, 2012. Please read 
 ### DEMO ###
 An example can be seen [here](http://michaelabarger.github.com/examples/HIBANA-test.html).
 
-
 ### USAGE ###
 Please note that the project is still in active development, and the API interface is subject to change at any time until further notice. However, the following does apply to the current build.
 
@@ -67,7 +66,7 @@ After adding Emitters, the only other thing you need do in order to use HIBANA i
 
 That's it!
 
-#### Controlling your HIBANA emitters ####
+#### Controlling your HIBANA Emitters ####
 HIBANA.Emitters offer the following methods; you can call them either through the reference you save as a result of the call to `HIBANA.emitters.add`, or alternatively, you can make the call to all Emitters in the system at once, as described in the next subsection.
 - `pause()`, `play()`, and `togglePause()` control whether the animations for your Emitter are playing. 
 - `clear()` allows you to reset the Emitter to its starting state, erasing all of its active particles.
@@ -91,12 +90,13 @@ or, with parameters:
 
 	HIBANA.emitters.all( "setParticleRate", 80 );
 
-#### Controlling forces in your HIBANA system ####
+#### Controlling the global forces in your HIBANA system ####
 Currently, HIBANA offers support for a global force (such as *gravity*), and defaults to a force of `(0, -0.05, 0)`. You can make changes to this force by calling the following methods on HIBANA.global:
 - `set(force)` and `get()` to set and get the global force.
+- `add(force)` will add a new global force to the current one.
 - `activate()`, `deactivate()`, and `toggle()` to control whether the force currently applies to the active particles.
 
-#### Summary ####
+### Summary ###
 That's it! Again, in order to use a HIBANA particle system in your 3D Three.js project, all you need to do is:
 - make an Emitter to any Three.js object:
 
