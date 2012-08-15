@@ -1,11 +1,11 @@
-// HIBANA.js
-// (Particle engine for THREE.js)
-// by Michael Barger
-
 /*
+HIBANA.js (https://github.com/MichaelABarger/HIBANA.js/src/HIBANA.js)
+part of the HIBANA.js open-source project
+@author Michael A Barger
+
 The MIT License
 
-Copyright (c) 2012 Hibana.js authors.
+Copyright (c) 2012 HIBANA.js authors.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -28,80 +28,49 @@ THE SOFTWARE.
 
 var HIBANA = {
 
-	emitters: [],
-
-	global_force: new THREE.Vector3( 0.0, -0.05, 0.0 ),
-
-	global_force_is_active: false,
+	age: function () { this.emitters.all( "age" ); },
 	
-	// thanks to Alteredq for inspiration on particle shader code!
-	// I'm not currently using these, but they are stored here for future reference
-	// ///////////////////////////////////////
-	vertex_shader:
-		"uniform float amplitude;" +
-		"attribute float size;" +
-		"attribute vec3 custom_color;" +
-		"varying vec3 vColor" +
-		"void main() {" +
-			"vertex_color = custom_color;" +
-			"vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );" +
-			"gl_PointSize = size * (300.0 / length( mvPosition.xyz ));" +
-			"gl_Position = projectionMatrix * mvPosition;" +
-		"}",
+	emitters: { 
+		id: [],
 
-	fragment_shader:
-		"uniform vec3 color;" +
-		"uniform sampler2D texture;" +
-		"varying vec3 vertex_color;" +
-		"void main() {" +
-			"gl_FragColor = vec4( color * vColor, 1.0 );" +
-			"gl_FragColor *= texture2D( texture, gl_PointCoord );" +
-		"}",
-
-	attributes:  {
-		size: 			{ type: 'f', value: [] },
-		custom_color:	{ type: 'c', value: [] }
+		all: function ( method_name, arg ) {
+			var result = [];
+			if ( arg === undefined ) {
+				for ( i in this.id )
+					result.push( this.id[i][method_name]() );
+			} else {
+				for ( i in this.id )
+					result.push( this.id[i][method_name]( arg ) );
+			}
+			return result;
+		},
+		
+		add: function ( object, parameters ) {
+			var new_emitter = new HIBANA.Emitter( object, parameters );
+			this.id.push( new_emitter );
+			return new_emitter;
+		},
+		
+		setDefaultParameters: function ( parameters ) {
+			for ( p in parameters )
+				HIBANA.Emitter.prototype[p] = parameters[p];
+		},
 	},
-
-	uniforms: {
-		amplitude:		{ type: 'f', value: 1.0 },
-		color:			{ type: 'c', value: new THREE.Color( 0xFFFFFF ) },
-		texture:		{ type: 't', value: 0, texture: this.texture }
-	},
-
-	setGlobalForce: function ( global_force ) {
-		this.global_force = global_force;
-		return this;
-	},
-
-	getGlobalForce: function () {
-		return this.global_force;
-	},
-
-	enableGlobalForce: function() {
-		this.global_force_is_active = true;
-	},
-
-	disableGlobalForce: function() {
-		this.global_force_is_active = false;
-	},
-
-	toggleGlobalForce: function() {
-		this.global_force_is_active = !this.global_force_is_active;
-	},
-
-	allEmitters: function( method_name ) {
-		var result = [];
-
-		for ( e in this.emitters )
-			result.push( this.emitters[e][method_name]() );
-
-		return result;
-	},
-
-	addEmitter: function( object, parameters ) {
-		var new_emitter = new HIBANA.Emitter( object, parameters ); 
-		this.emitters.push( new_emitter );
-		return new_emitter;
+		
+		
+	global:	{
+		force: new THREE.Vector3( 0.0, -0.05, 0.0 ),
+		
+		is_active: false,
+		
+		set: function( force ) { this.force = force; return this; },
+		
+		get: function() { return this.force; },
+		
+		activate: function() { this.is_active = true; },
+		
+		deactivate: function() { this.is_active = false; },
+		
+		toggle: function() { this.is_active = !this.is_active; }
 	}
 };

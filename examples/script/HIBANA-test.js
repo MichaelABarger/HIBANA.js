@@ -1,7 +1,11 @@
 /*
+HIBANA-test.js (https://github.com/MichaelABarger/HIBANA.js/examples/script/HIBANA-test.js)
+part of the HIBANA.js open-source project
+@author Michael A Barger
+
 The MIT License
 
-Copyright (c) 2012 Hibana.js authors.
+Copyright (c) 2012 HIBANA.js authors.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -38,7 +42,6 @@ var azimuth = 0, zenith = 0, mouse_x = 0, mouse_y = 0, mouse_decay = true, mouse
 var renderer, composer, camera, scene;
 var mouse_decay;
 var objects, areOrbiting;
-var hibana;
 
 
 // ****** Executes as soon as the window has loaded
@@ -70,7 +73,7 @@ $(window).load( function() {
 	});
 	
 	$("#play-pause").click( function() {
-		hibana.togglePause();
+		HIBANA.emitters.all("pause");
 	});
 	
 	$("#show-hide").click( function() {
@@ -83,39 +86,39 @@ $(window).load( function() {
 	});
 	
 	$("#gravity").click( function() {
-		hibana.toggleGlobalForce();
+		HIBANA.global.toggle();
 	});
 	
 	$("#size-slider").change( function() {
-		hibana.setParticleSize( parseFloat( $(this).val() ) );
+		HIBANA.emitters.all("setParticleSize", parseFloat( $(this).val() ) );
 	});
 	
 	$("#rate-slider").change( function() {
-		hibana.setRate( parseInt( $(this).val() ) );
+		HIBANA.emitters.all("setRate", parseInt( $(this).val() ) );
 	});
 	
 	$("#jitter-slider").change( function() {
-		hibana.setJitterFactor( parseFloat( $(this).val() ) );
+		HIBANA.emitters.all("setJitter", parseFloat( $(this).val() ) );
 	});
 	
 	$("#angle-slider").change( function() {
-		hibana.setEmissionAngle( parseFloat( $(this).val() ) );
+		HIBANA.emitters.all("setAngle", parseFloat( $(this).val() ) );
 	});
 	
 	$("#life-min-slider").change( function() {
-		hibana.setLifetimeMinimum( parseInt( $(this).val() ) );
+		HIBANA.emitters.all("setParticleLifetimeMin", parseInt( $(this).val() ) );
 	});
 	
 	$("#life-range-slider").change( function() {
-		hibana.setLifetimeRange( parseFloat( $(this).val() ) );
+		HIBANA.emitters.all("setParticleLifetimeRange", parseFloat( $(this).val() ) );
 	});
 	
 	$("#force-slider").change( function() {
-		hibana.setEmissionForce( parseFloat( $(this).val() ) );
+		HIBANA.emitters.all("setForce", parseFloat( $(this).val() ) );
 	});
 
 	$("#clear-all").click( function() {
-		hibana.all( "__clearAll" );
+		HIBANA.emitters.all( "clear" );
 	});
 });
 
@@ -143,9 +146,6 @@ function init3D() {
 
 	createRoom();
 	createCamera();	
-	
-	hibana = new HIBANA();
-	
 	createObjects( 10 );
 	createEmitters();
 	createLights();
@@ -197,7 +197,7 @@ function createEmitters() {
 					new THREE.Color( 0x00fffb ) ]
 	for ( o in objects ) {
 		var c = Math.round( Math.random() * 5 );
-		hibana.addEmitter( objects[o], { particle_color: colors[c], jitter_factor: 0.1 } )
+		HIBANA.emitters.add( objects[o], { particle_color: colors[c], jitter: 0.1 } );
 	}
 }
 
@@ -227,7 +227,7 @@ function render() {
 	camera.lookAt( CAMERA_TARGET );
 	
 	orbitObjects();
-	hibana.age();
+	HIBANA.age();
 	
 	renderer.render( scene, camera );
 	
