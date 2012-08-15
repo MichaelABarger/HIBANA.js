@@ -48,15 +48,16 @@ Where `object` is any THREE.Object3D and `{ parameters }` is a bracketed list of
 - `emission_force: ` Amount of force with which particles will be emitted from the emitter. The default is 1.
 - `jitter_factor: ` Factor by which particles will randomly move on a perpendicular plane to their path. The default is 0, or no jitter.
 - `hidden_point: ` THREE.Vector3 object that is where inactive particles will go; choose a point that won't be visible! The default is `(-1000, -1000, -1000)`.
-- `paused: ` Whether or not HIBANA will start off in a paused state (regarding particle play-back). The default is `true`!
+- `paused: ` Whether or not your Emitter will start off in a paused state (regarding particle play-back). The default is `true`!
 - `particle_size: ` Initial size of each particle. The default is `4.0`.
 - `texture: ` Any THREE.Texture that you might want to use instead of the default HTML5 canvas-generated one.
 
-If all of your emitters will exhibit similar behavior, you can change the default values of these parameters at any time by calling `HIBANA.emitters.setDefaultParameters( { parameters } )`.
+If all of the Emitters that you will be creating will have similar properties, you can change the default values of these initialization parameters at any time by calling `HIBANA.emitters.setDefaultParameters( { parameters } )`.
 
 Your call to `HIBANA.emitters.add` will return a reference back to the HIBANA.Emitter you just created. Feel free to store it in a variable to access its methods, described below.
 
 At the simplest, you can create an attractive default Emitter, simply by making the following statement:
+
 	HIBANA.emitters.add( object );
 
 #### Age HIBANA in your rendering function ####
@@ -81,19 +82,29 @@ HIBANA.Emitters offer the following methods; you can call them either through th
 - `setParticleSize(size)` and `getParticleSize()`
 - `setTexture(texture)` and `getTexture()`
 
-##### Changing all HIBANA Emitters at once #####
+##### Controlling all HIBANA Emitters at once #####
+Through a simple call to `HIBANA.emitters.all`, you can control all of the HIBANA system's Emitters at once! Just include the name of the method that you wish to invoke as a string literal; if the method takes a parameter, then add a comma followed by that parameter. For example:
 
+	HIBANA.emitters.all( "clear" );
+
+or, with parameters:
+
+	HIBANA.emitters.all( "setParticleRate", 80 );
 
 #### Controlling forces in your HIBANA system ####
 Currently, HIBANA offers support for a global force (such as *gravity*), and defaults to a force of `(0, -0.05, 0)`. You can make changes to this force by calling the following methods on HIBANA.global:
 - `set(force)` and `get()` to set and get the global force.
 - `activate()`, `deactivate()`, and `toggle()` to control whether the force currently applies to the active particles.
 
-#### Recap ####
+#### Summary ####
 That's it! Again, in order to use a HIBANA particle system in your 3D Three.js project, all you need to do is:
 - make an Emitter to any Three.js object:
+
 	HIBANA.emitters.add( object );
+
 - age the system in your rendering loop:
+
 	HIBANA.age();
+
 Yes, that's really it!
 	
