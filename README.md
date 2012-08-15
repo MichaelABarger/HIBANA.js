@@ -99,13 +99,12 @@ Currently, HIBANA offers support for a Universal force (such as *gravity*), and 
 
 ### Summary ###
 That's it! Again, in order to use a HIBANA particle system in your 3D Three.js project, all you need to do is:
-- make an Emitter to any Three.js object:
+1. make an Emitter to any Three.js object:
 
 	HIBANA.Emitters.add( object );
 
-- age the system in your rendering loop:
+2. age the system in your rendering loop:
 
 	HIBANA.age();
 
-Yes, that's really it!
-	
+Yes, that's really it! Enjoy!
