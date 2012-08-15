@@ -31,23 +31,23 @@ var HIBANA = {
 	age: function () { this.emitters.all( "age" ); },
 	
 	emitters: { 
-		id: [],
+		ref: [],
 
 		all: function ( method_name, arg ) {
 			var result = [];
 			if ( arg === undefined ) {
-				for ( i in this.id )
-					result.push( this.id[i][method_name]() );
+				for ( i in this.ref )
+					result.push( this.ref[i][method_name]() );
 			} else {
-				for ( i in this.id )
-					result.push( this.id[i][method_name]( arg ) );
+				for ( i in this.ref )
+					result.push( this.ref[i][method_name]( arg ) );
 			}
 			return result;
 		},
 		
 		add: function ( object, parameters ) {
 			var new_emitter = new HIBANA.Emitter( object, parameters );
-			this.id.push( new_emitter );
+			this.ref.push( new_emitter );
 			return new_emitter;
 		},
 		
@@ -64,8 +64,10 @@ var HIBANA = {
 		is_active: false,
 		
 		set: function( force ) { this.force = force; return this; },
-		
+
 		get: function() { return this.force; },
+	
+		add: function( force ) { this.force.addSelf( force ); return this; },
 		
 		activate: function() { this.is_active = true; },
 		
