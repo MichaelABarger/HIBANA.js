@@ -1,7 +1,16 @@
 /*
 HIBANA-test.js (https://github.com/MichaelABarger/HIBANA.js/examples/script/HIBANA-test.js)
-part of the HIBANA.js open-source project
-@author Michael A Barger
+Part of the HIBANA.js open-source project, a WebGL particle engine for Three.js
+
+@author Michael A Barger (mikebarger@gmail.com)
+
+
+HIBANA-test.html (https://github.com/MichaelABarger/HIBANA.js/examples/HIBANA-test.html)
+Part of the HIBANA.js open-source project, a WebGL particle engine for Three.js
+
+@author Michael A Barger (mikebarger@gmail.com)
+
+author Michael A Barger
 
 The MIT License
 

@@ -1,6 +1,8 @@
 HIBANA.js
 =========
 
+*by Michael A Barger (mikebarger@gmail.com)*
+
 #### 3D particle engine extension for Three.js ####
 HIBANA.js is an open-source Javascript library extension that extends the popular WebGL 3D library Three.js with a flexible and powerful particle engine. 
 

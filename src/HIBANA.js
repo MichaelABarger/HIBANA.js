@@ -1,7 +1,8 @@
 /*
 HIBANA.js (https://github.com/MichaelABarger/HIBANA.js/src/HIBANA.js)
-part of the HIBANA.js open-source project
-@author Michael A Barger
+Part of the HIBANA.js open-source project, a WebGL particle engine for Three.js
+
+@author Michael A Barger (mikebarger@gmail.com)
 
 The MIT License
 
