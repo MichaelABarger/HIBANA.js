@@ -135,7 +135,7 @@ HIBANA.Emitter = function ( object, parameters ) {
 				this.active_particles.splice( p, 1 );
 			} else {
 				if ( this.jitter && !particle.velocity.isZero() ) {
-					var random_offset = Math.random() * this.jitter * 2 - this.jitter;
+					var random_offset = Math.random() * this.jitter / 2.0 - this.jitter / 4.0;
 					var perpendicular_U = particle.velocity.clone().crossSelf( this.__UNIT ).normalize().multiplyScalar( random_offset );
 					if ( perpendicular_U.isZero() )
 						perpendicular_U = particle.velocity.clone().crossSelf( this.__UNIT.negate() ).normalize().multiplyScalar( random_offset );
