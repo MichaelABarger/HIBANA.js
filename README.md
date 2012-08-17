@@ -102,10 +102,10 @@ That's it! Again, in order to use a HIBANA particle system in your 3D Three.js p
 
 1. make an Emitter to any Three.js object:
 
-	HIBANA.Emitters.add( object );
+	`HIBANA.Emitters.add( object )`;
 
 2. age the system in your rendering loop:
 
-	HIBANA.age();
+	`HIBANA.age()`;
 
 Yes, that's really it! Enjoy!
