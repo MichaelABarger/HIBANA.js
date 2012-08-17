@@ -73,7 +73,7 @@ $(window).load( function() {
 	});
 	
 	$("#play-pause").click( function() {
-		HIBANA.Emitters.all("pause");
+		HIBANA.Emitters.all("togglePause");
 	});
 	
 	$("#show-hide").click( function() {
@@ -166,10 +166,10 @@ function createRoom() {
 }
 
 function createCamera() {
-    camera = new THREE.PerspectiveCamera( VIEW_ANGLE, ASPECT, NEAR, FAR );
+	camera = new THREE.PerspectiveCamera( VIEW_ANGLE, ASPECT, NEAR, FAR );
 	camera.position = new THREE.Vector3().copy( CAMERA_HOME );
 	camera.lookAt( CAMERA_TARGET );
-    scene.add( camera );
+	scene.add( camera );
 }
 
 function createObjects( objectCount ) {
@@ -182,7 +182,7 @@ function createObjects( objectCount ) {
 		var object = new THREE.Mesh( geo, new THREE.MeshPhongMaterial( { color: 0xFF0000, metal: true } ) );
 		object.r = Math.random() * (ROOM_DIM / 2 - OBJECT_SIZE);
 		object.theta = Math.random() * 2 * Math.PI;
-		object.position.y = Math.random() * (ROOM_DIM / 2 - OBJECT_SIZE);
+		object.position.y = Math.random() * (ROOM_DIM - OBJECT_SIZE) - (ROOM_DIM / 2);
 		updatePolarPositionToCartesian( object );
 		scene.add( object );
 		objects.push( object );
@@ -191,21 +191,21 @@ function createObjects( objectCount ) {
 
 function createEmitters() {
 	var colors = [ 	new THREE.Color( 0xff9100 ),
-					new THREE.Color( 0xff0088 ),
-					new THREE.Color( 0x00ff08 ),
-					new THREE.Color( 0xf6ff00 ),
-					new THREE.Color( 0x00fffb ) ]
+			new THREE.Color( 0xff0088 ),
+			new THREE.Color( 0x00ff08 ),
+			new THREE.Color( 0xf6ff00 ),
+			new THREE.Color( 0x00fffb ) ];
 	for ( o in objects ) {
-		var c = Math.round( Math.random() * 5 );
+		var c = Math.round( Math.random() * 4 );
 		HIBANA.Emitters.add( objects[o], { particle_color: colors[c], jitter: 0.1 } );
 	}
 }
 
 function createLights() {
-	var point_light = new THREE.PointLight( 0xFFFFFF, 0.6);
+	var point_light = new THREE.PointLight( 0xFFFFFF, 0.05);
 	point_light.position.set( 0, 0, 0 );
 	scene.add( point_light );
-	var camera_light = new THREE.PointLight( 0xFFFFFF, 0.3);
+	var camera_light = new THREE.PointLight( 0xFFFFFF, 0.1);
 	camera_light.position = camera.position;
 	scene.add( camera_light );
 }

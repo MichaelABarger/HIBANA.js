@@ -76,5 +76,15 @@ var HIBANA = {
 		deactivate: function() { this.is_active = false; },
 		
 		toggle: function() { this.is_active = !this.is_active; }
+	},
+	
+	// JavaScript Clone code found on Keith Devens' blog, as written by him in collaboration with his readers
+	__clone: function ( obj ) {
+		if ( obj == null || typeof(obj) != 'object' )	
+			return obj;
+		var temp = {};
+		for ( var key in obj )
+			temp[key] = HIBANA.__clone( obj[key] );
+		return temp;
 	}
 };

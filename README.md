@@ -38,7 +38,7 @@ You can create particle Emitters simply by calling the `addEmitter` method:
 	
 Where `object` is any THREE.Object3D and `{ parameters }` is a bracketed list of the following optional parameters:
 
-- `particle_count: ` Total number of particles that will be allocated for this Emitter. They won't necessarily all be showing all the time! The default is 400; you might want to lower this if there are performance issues, or raise it if you are using a fast Emitter rate.
+- `particle_count: ` Total number of particles that will be allocated for this Emitter. They won't necessarily all be showing all the time! The default is 2000; you might want to lower this if there are performance issues, or raise it if you are using a fast Emitter rate.
 - `particle_color: ` The THREE.Color that will be used to tint your texture! The default is pure white.
 - `rate: ` Emitter rate on a scale of 0 to 100. The default is 75.
 - `particle_life_expectancy_min: ` Minimum amount of frames that a particle will remain alive. The default is 10.
@@ -48,7 +48,7 @@ Where `object` is any THREE.Object3D and `{ parameters }` is a bracketed list of
 - `jitter_factor: ` Factor by which particles will randomly move on a perpendicular plane to their path. The default is 0, or no jitter.
 - `hidden_point: ` THREE.Vector3 object that is where inactive particles will go; choose a point that won't be visible! The default is `(-1000, -1000, -1000)`.
 - `paused: ` Whether or not your Emitter will start off in a paused state (regarding particle play-back). The default is `true`!
-- `particle_size: ` Initial size of each particle. The default is `4.0`.
+- `particle_size: ` Initial size of each particle. The default is `2.0`. However, please note that the maximum size will be limited by your graphic card.
 - `texture: ` Any THREE.Texture that you might want to use instead of the default HTML5 canvas-generated one.
 
 If all of the Emitters that you will be creating will have similar properties, you can change the default values of these initialization parameters at any time by calling `HIBANA.Emitters.setDefaultParameters( { parameters } )`.
