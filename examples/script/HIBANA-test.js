@@ -122,12 +122,12 @@ $(window).load( function() {
 		HIBANA.Emitters.all("setRandomRate", parseFloat( $(this).val() ) );
 	});
 
-	$("#wavy-slider").change( function() {
+	$("#waviness-slider").change( function() {
 		HIBANA.Emitters.all("setWaviness", parseFloat( $(this).val() ) );
 	});
 	
-	$("#wavy-rate-slider").change( function() {
-		HIBANA.Emitters.all("setWavyRate", parseFloat( $(this).val() ) );
+	$("#waviness-rate-slider").change( function() {
+		HIBANA.Emitters.all("setWavinessRate", parseFloat( $(this).val() ) );
 	});
 
 	$("#angle-slider").change( function() {

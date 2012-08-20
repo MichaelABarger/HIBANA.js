@@ -38,6 +38,9 @@ HIBANA.Emitter = function ( object, parameters ) {
 	this.active_particles = [];
 	this.next_particle = 0;
 	this.overflow = 0;
+	this.jitter_overflow = 0;
+	this.random_overflow = 0;
+	this.waviness_overflow = 0;
 
 	this.starting_position = THREE.GeometryUtils.randomPointsInGeometry( object.geometry, this.particle_count );
 	
@@ -75,7 +78,6 @@ HIBANA.Emitter.prototype = {
 	},
 
 	age: function () {
-
 		if ( this.paused ) return this;
 
 		var current_time = new Date().getTime();
@@ -125,19 +127,31 @@ HIBANA.Emitter.prototype = {
 				particle.color.copy( this.particle_color );
 				this.active_particles.splice( p, 1 );
 			} else {
-				if ( this.jitter > 0.0 ) 
-					particle.vertex.addSelf( randomVectorOnParallelPlane( particle.velocity, this.jitter ) );
-				if ( this.random > 0.0 ) 
-					particle.velocity.addSelf(randomVectorOnParallelPlane( particle.velocity, this.random ) );
-				if ( this.waviness > 0.0 )
-					particle.velocity.addSelf( randomVectorOnParallelPlane( particle.initial_velocity, this.waviness ) );
+				if ( this.jitter > 0.0 && this.jitter_rate > 0.0 ) {
+					var jitter_count = Math.floor( dt * this.jitter_rate + this.jitter_overflow );
+					this.jitter_overflow = (dt * this.jitter_rate + this.jitter_overflow) - jitter_count;
+					for ( i = 0; i < jitter_count; i++ )
+						particle.vertex.addSelf( randomVectorOnParallelPlane( particle.velocity, this.jitter ) );
+				}
+				if ( this.random > 0.0 && this.random_rate > 0.0 ) {
+					var random_count = Math.floor( dt * this.random_rate + this.random_overflow );
+					this.random_overflow = (dt * this.random_rate + this.random_overflow) - random_count;
+					for ( i = 0; i < random_count; i++ )
+						particle.velocity.addSelf(randomVectorOnParallelPlane( particle.velocity, this.random ) );
+				}
+				if ( this.waviness > 0.0 && this.waviness_rate > 0.0 ) {
+					var waviness_count = Math.floor( dt * this.waviness_rate + this.waviness_overflow );
+					this.waviness_overflow = (dt * this.waviness_rate + this.waviness_overflow) - waviness_count;
+					for ( i = 0; i < waviness_count; i++ )
+						particle.velocity.addSelf( randomVectorOnParallelPlane( particle.initial_velocity, this.waviness ) );
+				}
 				if ( HIBANA.Universal.is_active )
-					particle.velocity.addSelf( HIBANA.Universal.force );
+					particle.velocity.addSelf( HIBANA.Universal.force.clone().multiplyScalar(dt) );
 				particle.vertex.addSelf( particle.velocity );
 			}
 		}
 		this.geometry.verticesNeedUpdate = true;
-		this.geometry.colorsNeedUpdate = false;
+		this.geometry.colorsNeedUpdate = true;
 		return this;
 	},
 
@@ -176,7 +190,7 @@ HIBANA.Emitter.prototype = {
 	setParticleLifetimeRange: function ( range ) { this.particle_life_range = range * 1000; return this; },
 
 	setRate: function ( particles_per_second ) { 
-		this.rate = particles_per_second / 1000; 
+		this.rate = particles_per_second / 1000.0; 
 		return this;
        	},
 	setAngle: function ( angle ) { 
@@ -184,22 +198,22 @@ HIBANA.Emitter.prototype = {
 		this._generateInitialVelocities();
 		return this; 
 	},
-	setForceMin: function ( force_min ) { 
-		this.force_min = force_min;
+	setForceMin: function ( feet_per_second ) { 
+		this.force_min = feet_per_second / 1000.0;
 		this._generateInitialVelocities();
 		return this;
 	},
-	setForceRange: function ( force_range ) {
-		this.force_range = force_range;
+	setForceRange: function ( feet_per_second ) {
+		this.force_range = feet_per_second / 1000.0;
 		this._generateInitialVelocities();
 		return this;
 	},
 	setJitter: function ( jitter ) { this.jitter = jitter; return this; },
-	setJitterRate: function ( jitters_per_second ) { this.jitter_rate = jitters_per_second / 1000; return this; },
+	setJitterRate: function ( jitters_per_second ) { this.jitter_rate = jitters_per_second / 1000.0; return this; },
 	setRandom: function ( random ) { this.random = random; return this; },
-	setRandomRate: function ( randoms_per_second ) { this.random_rate = randoms_per_second / 1000; return this; },
+	setRandomRate: function ( randoms_per_second ) { this.random_rate = randoms_per_second / 1000.0; return this; },
 	setWaviness: function ( waviness ) { this.waviness = waviness; return this; },
-	setWavinessRate: function ( randoms_per_second ) { this.random_rate = randoms_per_second / 1000; return this; },
+	setWavinessRate: function ( wavies_per_second ) { this.waviness_rate = wavies_per_second / 1000.0; return this; },
 
 	_generateInitialVelocities: function () {
 		this.initial_velocity = [];
