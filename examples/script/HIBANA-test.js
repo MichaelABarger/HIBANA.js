@@ -110,14 +110,26 @@ $(window).load( function() {
 		HIBANA.Emitters.all("setJitter", parseFloat( $(this).val() ) );
 	});
 
+	$("#jitter-rate-slider").change( function() {
+		HIBANA.Emitters.all("setJitterRate", parseFloat( $(this).val() ) );
+	});
+
 	$("#random-slider").change( function() {
 		HIBANA.Emitters.all("setRandom", parseFloat( $(this).val() ) );
+	});
+
+	$("#random-rate-slider").change( function() {
+		HIBANA.Emitters.all("setRandomRate", parseFloat( $(this).val() ) );
 	});
 
 	$("#wavy-slider").change( function() {
 		HIBANA.Emitters.all("setWaviness", parseFloat( $(this).val() ) );
 	});
 	
+	$("#wavy-rate-slider").change( function() {
+		HIBANA.Emitters.all("setWavyRate", parseFloat( $(this).val() ) );
+	});
+
 	$("#angle-slider").change( function() {
 		HIBANA.Emitters.all("setAngle", parseFloat( $(this).val() ) );
 	});

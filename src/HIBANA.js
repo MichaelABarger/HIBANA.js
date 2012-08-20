@@ -52,18 +52,20 @@ var HIBANA = {
 		},
 
 		_defaultParameters: {
-
 			paused:			true,
 			particle_count:		2000,
 			rate:			0.75,
-			particle_life_min:	10,
-			particle_life_range:	25,
+			particle_life_min:	500,
+			particle_life_range:	500,
 			angle:			0.0,
 			force_min:		0.03,
 			force_range:		0.03,
 			jitter:			0.0,
+			jitter_rate:		0.0,
 			random:			0.0,
+			random_rate:		0.0,
 			waviness:		0.0,
+			waviness_rate:		0.0,
 			hidden_point:		new THREE.Vector3( -1000, -1000, -1000 ),
 			paused:			true,
 			particle_size:		2.0,
@@ -98,7 +100,7 @@ var HIBANA = {
 		
 	Universal:	{
 
-		force: new THREE.Vector3( 0.0, -0.05, 0.0 ),
+		force: new THREE.Vector3( 0.0, -0.095, 0.0 ),
 		
 		is_active: false,
 		

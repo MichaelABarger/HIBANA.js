@@ -51,7 +51,6 @@ HIBANA.Emitter = function ( object, parameters ) {
 	
 
 	this._generateInitialVelocities();
-
 	this._makeMaterial();
 	
 	this.system = new THREE.ParticleSystem( this.geometry, this.material );
@@ -87,7 +86,7 @@ HIBANA.Emitter.prototype = {
 
 		// generate new particles	
 		for ( var i = 0; i < new_particle_count; i++ ) {
-			if ( this.active_particles.length > this.geometry.vertices.length )
+			if ( this.active_particles.length > this.particle_count )
 				break;
 
 			var initial = this.initial_velocity[ this.next_particle ];
@@ -96,8 +95,8 @@ HIBANA.Emitter.prototype = {
 				color:  this.geometry.colors[ this.next_particle ],
 				age:	0,
 				life:	Math.round(this.particle_life_min + Math.random() * this.particle_life_range),
-				initial_velocity: initial,
-				velocity: initial
+				initial_velocity: initial.clone(),
+				velocity: initial.clone()
 			};
 			new_particle.vertex.copy( this.starting_position[ this.next_particle ] );
 
@@ -107,51 +106,40 @@ HIBANA.Emitter.prototype = {
 				this.next_particle = 0;
 		}
 	
+		function randomVectorOnParallelPlane ( V, factor ) {
+			UNIT = new THREE.Vector3( 1, 1, 1 ).normalize();
+			var P = new THREE.Vector3().cross( V, V.clone().addSelf( UNIT ) ).normalize();
+			var Q = new THREE.Vector3().cross( P, V ).normalize();
+			P.multiplyScalar( Math.random() * factor - factor / 2.0 );
+			Q.multiplyScalar( Math.random() * factor - factor / 2.0 );
+			return new THREE.Vector3().add( P, Q );
+		}
+
 		// age active particles
 		for ( p in this.active_particles ) {
 			var particle = this.active_particles[p];
-			if ( --particle.life <= 0 ) {
-				particle.age++;
+			particle.life -= dt;
+			if ( particle.life <= 0 ) {
+				particle.age += dt;
 				particle.vertex.copy( this.hidden_point );
 				particle.color.copy( this.particle_color );
 				this.active_particles.splice( p, 1 );
 			} else {
-				if ( this.jitter > 0.0 || this.random > 0.0 ) {
-					var velocity = particle.velocity;
-					var U = new THREE.Vector3().cross( velocity, velocity.clone().addSelf( this._UNIT ) );
-					var V = new THREE.Vector3().cross( U, velocity );
-					if ( this.jitter > 0.0 ) {
-						var offset = Math.random() * this.jitter - this.jitter / 2.0;
-						var dP = new THREE.Vector3().add( U, V ).normalize().multiplyScalar( offset );
-						particle.vertex.addSelf( dP );
-					}
-					if ( this.random > 0.0 ) {
-						var offset = Math.random() * this.random - this.random / 2.0;
-						var dV = new THREE.Vector3().add( U, V ).normalize().multiplyScalar( offset );
-						particle.velocity.addSelf( dV );
-					}
-				}
-				if ( this.waviness > 0.0 ) {
-					var initial_velocity = particle.initial_velocity;
-					var Q = new THREE.Vector3().cross( initial_velocity, initial_velocity.clone().addSelf( this._UNIT ) );
-					var R = new THREE.Vector3().cross( Q, initial_velocity );
-					var offset = Math.random() * this.waviness - this.waviness / 2.0;
-					var dV = new THREE.Vector3().add( Q, R ).normalize().multiplyScalar( offset );
-					particle.velocity.addSelf( dV );
-				}
+				if ( this.jitter > 0.0 ) 
+					particle.vertex.addSelf( randomVectorOnParallelPlane( particle.velocity, this.jitter ) );
+				if ( this.random > 0.0 ) 
+					particle.velocity.addSelf(randomVectorOnParallelPlane( particle.velocity, this.random ) );
+				if ( this.waviness > 0.0 )
+					particle.velocity.addSelf( randomVectorOnParallelPlane( particle.initial_velocity, this.waviness ) );
 				if ( HIBANA.Universal.is_active )
 					particle.velocity.addSelf( HIBANA.Universal.force );
 				particle.vertex.addSelf( particle.velocity );
-
-				
 			}
 		}
-		
 		this.geometry.verticesNeedUpdate = true;
 		this.geometry.colorsNeedUpdate = false;
 		return this;
 	},
-
 
 	
 	pause: function () { this.paused = true; return this; },
@@ -184,8 +172,8 @@ HIBANA.Emitter.prototype = {
 		this.system.material = this.material;
 		return this;
 	},
-	setParticleLifetimeMin: function ( min ) { this.particle_life_min = min; return this; },
-	setParticleLifetimeRange: function ( range ) { this.particle_life_range = range; return this; },
+	setParticleLifetimeMin: function ( min ) { this.particle_life_min = min * 1000; return this; },
+	setParticleLifetimeRange: function ( range ) { this.particle_life_range = range * 1000; return this; },
 
 	setRate: function ( particles_per_second ) { 
 		this.rate = particles_per_second / 1000; 
@@ -207,8 +195,11 @@ HIBANA.Emitter.prototype = {
 		return this;
 	},
 	setJitter: function ( jitter ) { this.jitter = jitter; return this; },
+	setJitterRate: function ( jitters_per_second ) { this.jitter_rate = jitters_per_second / 1000; return this; },
 	setRandom: function ( random ) { this.random = random; return this; },
+	setRandomRate: function ( randoms_per_second ) { this.random_rate = randoms_per_second / 1000; return this; },
 	setWaviness: function ( waviness ) { this.waviness = waviness; return this; },
+	setWavinessRate: function ( randoms_per_second ) { this.random_rate = randoms_per_second / 1000; return this; },
 
 	_generateInitialVelocities: function () {
 		this.initial_velocity = [];
@@ -239,7 +230,5 @@ HIBANA.Emitter.prototype = {
 								   transparent: true,
 								   overdraw: true,
 								   depthWrite: false } );
-	},
-
-	_UNIT: new THREE.Vector3( 1, 1, 1 ).normalize()
+	}
 };
