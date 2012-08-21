@@ -27,7 +27,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-HIBANA.Particle = function ( emitter, parameters ) {
+HIBANA.Particle = function ( parameters ) {
 	this.vertex = parameters.vertex;
 	this.vertex.copy( parameters.starting_position );
 	this.initial_color = parameters.color;

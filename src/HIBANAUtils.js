@@ -29,8 +29,8 @@ THE SOFTWARE.
 
 THREE.Vector3.prototype.UNIT = new THREE.Vector3( 1, 1, 1 ).normalize();
 THREE.Vector3.prototype.getNormalPlane = function () {
-	var P = new THREE.Vector3().cross( V, V.clone().addSelf( this.UNIT ) ).normalize();
-	var Q = new THREE.Vector3().cross( P, V ).normalize();
+	var P = new THREE.Vector3().cross( this, this.clone().addSelf( this.UNIT ) ).normalize();
+	var Q = new THREE.Vector3().cross( P, this ).normalize();
 	return new HIBANA.NormalPlane( P, Q );
 };
 

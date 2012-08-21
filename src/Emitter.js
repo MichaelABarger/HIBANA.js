@@ -98,7 +98,7 @@ HIBANA.Emitter.prototype = {
 				initial_velocity: this.initial_velocity[ this.next_particle ].clone(),
 				starting_position: this.starting_position[ this.next_particle ],
 				home: this.hidden_point
-			} );
+			} ) );
 			
 			if ( ++this.next_particle >= this.particle_count )
 				this.next_particle = 0;
@@ -119,7 +119,7 @@ HIBANA.Emitter.prototype = {
 					this.jitter_overflow = (dt * this.jitter_rate + this.jitter_overflow) - jitter_count;
 					for ( i = 0; i < jitter_count; i++ )
 						particle.vertex.addSelf( particle.normal_plane.randomVector( this.jitter ) );
-				},
+				}
 				if ( this.random > 0.0 && this.random_rate > 0.0 ) {
 					var random_count = Math.floor( dt * this.random_rate + this.random_overflow );
 					this.random_overflow = (dt * this.random_rate + this.random_overflow) - random_count;
