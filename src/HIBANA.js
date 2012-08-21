@@ -54,21 +54,15 @@ var HIBANA = {
 		_defaultParameters: {
 			paused:			true,
 			particle_count:		2000,
-			rate:			0.75,
-			particle_life_min:	250,
-			particle_life_range:	250,
+			spawn:			new HIBANA.PeriodicEvent( 0.75, 1.25, 0.0 )
+			particle_life_min:	new HIBANA.Range( 250, 250 ),
 			angle:			0.0,
-			force_min:		1.25,
-			force_range:		1.25,
-			jitter:			0.0,
-			jitter_rate:		0.0,
-			random:			0.0,
-			random_rate:		0.0,
-			waviness:		0.0,
-			waviness_rate:		0.0,
+			jitter:			new HIBANA.PeriodicEvent( 0.0, 0.0, 0.0 ),
+			random:			new HIBANA.PeriodicEvent( 0.0, 0.0, 0.0 ),
+			waviness:		new HIBANA.PeriodicEvent( 0.0, 0.0, 0.0 ),
 			hidden_point:		new THREE.Vector3( -1000, -1000, -1000 ),
 			paused:			true,
-			particle_size:		2.0,
+			particle_size:		new HIBANA.Range( 2.0, 0.0 ),
 			particle_color:		new THREE.Color( 0xFFFFFF ),
 			texture: 		(function () {
 				var canvas = document.createElement( 'canvas' );

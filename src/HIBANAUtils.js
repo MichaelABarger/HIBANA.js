@@ -78,19 +78,34 @@ HIBANA.Range.prototype = {
 	}
 };
 
-HIBANA.Rate = function ( rate, magnitude ) {
+HIBANA.PeriodicEvent = function ( rate, magnitude_min, magnitude_range ) {
 	this.rate = rate;
-	this.magnitude = magnitude;
+	this.magnitude = new HIBANA.Range( magnitude_min, magnitude_range );
 	this.overflow = 0;
 	this.time = new Date().getTime();
 	return this;
 };
-HIBANA.Rate.prototype = {
+HIBANA.PeriodicEvent.prototype = {
 
-	constructor: HIBANA.Rate,
+	constructor: HIBANA.PeriodicEvent,
 
 	resetTime: function () {
 		this.time = new Date().getTime();
+		return this;
+	},
+
+	setRate: function ( rate ) {
+		this.rate = rate;
+		return this;
+	},
+
+	setMagnitudeMin: function ( magnitude_min ) {
+		this.magnitude.setMin( magnitude_min );
+		return this;
+	},
+
+	setMagnitudeRange: function ( magnitude_range ) {
+		this.magnitude.setRange( magnitude_range );
 		return this;
 	},
 
@@ -100,7 +115,7 @@ HIBANA.Rate.prototype = {
 		var iteration_count = Math.floor( dt * this.rate + this.overflow );
 		this.overflow = (dt * this.rate + this.overflow) - iteration_count;
 		for ( var i = 0; i < iteration_count; i++ )
-			func();
+			func( this.magnitude.randomValue() );
 		this.time = current_time;
 		return this;
 	}
