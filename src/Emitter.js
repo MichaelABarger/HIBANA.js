@@ -91,32 +91,19 @@ HIBANA.Emitter.prototype = {
 			if ( this.active_particles.length > this.particle_count )
 				break;
 
-			var initial = this.initial_velocity[ this.next_particle ];
-			var new_particle = {
+			this.active_particles.push( new HIBANA.Particle( {
 				vertex: this.geometry.vertices[ this.next_particle ],
 				color:  this.geometry.colors[ this.next_particle ],
-				age:	0,
 				life:	Math.round(this.particle_life_min + Math.random() * this.particle_life_range),
-				initial_velocity: initial.clone(),
-				velocity: initial.clone()
-			};
-			new_particle.vertex.copy( this.starting_position[ this.next_particle ] );
-
-			this.active_particles.push( new_particle );
+				initial_velocity: this.initial_velocity[ this.next_particle ].clone(),
+				starting_position: this.starting_position[ this.next_particle ],
+				home: this.hidden_point
+			} );
 			
 			if ( ++this.next_particle >= this.particle_count )
 				this.next_particle = 0;
 		}
 	
-		function randomVectorOnParallelPlane ( V, factor ) {
-			UNIT = new THREE.Vector3( 1, 1, 1 ).normalize();
-			var P = new THREE.Vector3().cross( V, V.clone().addSelf( UNIT ) ).normalize();
-			var Q = new THREE.Vector3().cross( P, V ).normalize();
-			P.multiplyScalar( Math.random() * factor - factor / 2.0 );
-			Q.multiplyScalar( Math.random() * factor - factor / 2.0 );
-			return new THREE.Vector3().add( P, Q );
-		}
-
 		// age active particles
 		for ( p in this.active_particles ) {
 			var particle = this.active_particles[p];
@@ -131,19 +118,19 @@ HIBANA.Emitter.prototype = {
 					var jitter_count = Math.floor( dt * this.jitter_rate + this.jitter_overflow );
 					this.jitter_overflow = (dt * this.jitter_rate + this.jitter_overflow) - jitter_count;
 					for ( i = 0; i < jitter_count; i++ )
-						particle.vertex.addSelf( randomVectorOnParallelPlane( particle.velocity, this.jitter ) );
-				}
+						particle.vertex.addSelf( particle.normal_plane.randomVector( this.jitter ) );
+				},
 				if ( this.random > 0.0 && this.random_rate > 0.0 ) {
 					var random_count = Math.floor( dt * this.random_rate + this.random_overflow );
 					this.random_overflow = (dt * this.random_rate + this.random_overflow) - random_count;
 					for ( i = 0; i < random_count; i++ )
-						particle.velocity.addSelf(randomVectorOnParallelPlane( particle.velocity, this.random ) );
+						particle.velocity.addSelf( particle.velocity.getNormalPlane().randomVector( this.random ) );
 				}
 				if ( this.waviness > 0.0 && this.waviness_rate > 0.0 ) {
 					var waviness_count = Math.floor( dt * this.waviness_rate + this.waviness_overflow );
 					this.waviness_overflow = (dt * this.waviness_rate + this.waviness_overflow) - waviness_count;
 					for ( i = 0; i < waviness_count; i++ )
-						particle.velocity.addSelf( randomVectorOnParallelPlane( particle.initial_velocity, this.waviness ) );
+						particle.velocity.addSelf( particle.normal_plane.randomVector( this.waviness ) );
 				}
 				if ( HIBANA.Universal.is_active )
 					particle.velocity.addSelf( HIBANA.Universal.force.clone().multiplyScalar(dt) );
