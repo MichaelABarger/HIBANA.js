@@ -82,7 +82,7 @@ $(window).load( function() {
 	});
 	
 	$("#play-pause").click( function() {
-		HIBANA.Emitters.all("togglePause");
+		HIBANA.Emitters.allEmitters("togglePause");
 	});
 	
 	$("#show-hide").click( function() {
@@ -99,59 +99,59 @@ $(window).load( function() {
 	});
 	
 	$("#size-slider").change( function() {
-		HIBANA.Emitters.all("setParticleSize", parseFloat( $(this).val() ) );
+		HIBANA.Emitters.allEmitters("setParticleSize", parseFloat( $(this).val() ) );
 	});
 	
 	$("#rate-slider").change( function() {
-		HIBANA.Emitters.all("setRate", parseInt( $(this).val() ) );
+		HIBANA.Emitters.allEmitters("setRate", parseInt( $(this).val() ) );
 	});
 	
 	$("#jitter-slider").change( function() {
-		HIBANA.Emitters.all("setJitter", parseFloat( $(this).val() ) );
+		HIBANA.Emitters.allEmitters("setJitter", parseFloat( $(this).val() ) );
 	});
 
 	$("#jitter-rate-slider").change( function() {
-		HIBANA.Emitters.all("setJitterRate", parseFloat( $(this).val() ) );
+		HIBANA.Emitters.allEmitters("setJitterRate", parseFloat( $(this).val() ) );
 	});
 
 	$("#random-slider").change( function() {
-		HIBANA.Emitters.all("setRandom", parseFloat( $(this).val() ) );
+		HIBANA.Emitters.allEmitters("setRandom", parseFloat( $(this).val() ) );
 	});
 
 	$("#random-rate-slider").change( function() {
-		HIBANA.Emitters.all("setRandomRate", parseFloat( $(this).val() ) );
+		HIBANA.Emitters.allEmitters("setRandomRate", parseFloat( $(this).val() ) );
 	});
 
 	$("#waviness-slider").change( function() {
-		HIBANA.Emitters.all("setWaviness", parseFloat( $(this).val() ) );
+		HIBANA.Emitters.allEmitters("setWaviness", parseFloat( $(this).val() ) );
 	});
 	
 	$("#waviness-rate-slider").change( function() {
-		HIBANA.Emitters.all("setWavinessRate", parseFloat( $(this).val() ) );
+		HIBANA.Emitters.allEmitters("setWavinessRate", parseFloat( $(this).val() ) );
 	});
 
 	$("#angle-slider").change( function() {
-		HIBANA.Emitters.all("setAngle", parseFloat( $(this).val() ) );
+		HIBANA.Emitters.allEmitters("setAngle", parseFloat( $(this).val() ) );
 	});
 	
 	$("#life-min-slider").change( function() {
-		HIBANA.Emitters.all("setParticleLifetimeMin", parseInt( $(this).val() ) );
+		HIBANA.Emitters.allEmitters("setParticleLifetimeMin", parseInt( $(this).val() ) );
 	});
 	
 	$("#life-range-slider").change( function() {
-		HIBANA.Emitters.all("setParticleLifetimeRange", parseFloat( $(this).val() ) );
+		HIBANA.Emitters.allEmitters("setParticleLifetimeRange", parseFloat( $(this).val() ) );
 	});
 	
 	$("#force-min-slider").change( function() {
-		HIBANA.Emitters.all("setForceMin", parseFloat( $(this).val() ) );
+		HIBANA.Emitters.allEmitters("setForceMin", parseFloat( $(this).val() ) );
 	});
 
 	$("#force-range-slider").change( function() {
-		HIBANA.Emitters.all("setForceRange", parseFloat( $(this).val() ) );
+		HIBANA.Emitters.allEmitters("setForceRange", parseFloat( $(this).val() ) );
 	});
 
 	$("#clear-all").click( function() {
-		HIBANA.Emitters.all( "clear" );
+		HIBANA.Emitters.allEmitters( "clear" );
 	});
 });
 
@@ -223,14 +223,14 @@ function createObjects( objectCount ) {
 }
 
 function createEmitters() {
-	var colors = [ 	new THREE.Color( 0xff9105 ),
-			new THREE.Color( 0xff0588 ),
-			new THREE.Color( 0x05ff08 ),
-			new THREE.Color( 0xf6ff05 ),
-			new THREE.Color( 0x05fffb ) ];
+//	var colors = [ 	new THREE.Color( 0xff9105 ),
+//			new THREE.Color( 0xff0588 ),
+//			new THREE.Color( 0x05ff08 ),
+//			new THREE.Color( 0xf6ff05 ),
+//			new THREE.Color( 0x05fffb ) ];
 	for ( o in objects ) {
 		var c = Math.round( Math.random() * 4 );
-		HIBANA.Emitters.add( objects[o], { particle_color: colors[c] } );
+		HIBANA.Emitters.add( objects[o] /*, { particle_color: colors[c] }*/ );
 	}
 }
 

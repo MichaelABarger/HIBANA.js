@@ -52,42 +52,50 @@ HIBANA.NormalPlane.prototype = {
 	}
 };
 
-HIBANA.Range = function ( min, range ) {
+HIBANA.Range = function ( min, max ) {
 	this.min = min;
-	this.range = range;
-	this.half_range = range / 2.0;
+    this.max = Math.max( min, max );
+    this._recalculateRange();
 	return this;
 };
 HIBANA.Range.prototype = {
 	
 	constructor:	HIBANA.Range,
 
-	randomValue: 	function () {
-		return this.min + Math.random() * this.range - this.half_range;
+	getValue: 	function () {
+		return this.min + Math.random() * this.range;
 	},
 
 	setMin:		function ( min ) {
 		this.min = min;
+        this._recalculateRange();
 		return this;
 	},
 
-	setRange:	function ( range ) {
-		this.range = range;
-		this.half_range = range / 2.0;
-		return this;
-	}
+	setMax: 	function ( max ) {
+		this.max = Math.max( max, this.min );
+        this._recalculateRange();
+        return this;
+	},
+
+    _recalculateRange: function () {
+        this.range = this.max - this.min;
+    }
 };
 
-HIBANA.PeriodicEvent = function ( rate, magnitude_min, magnitude_range ) {
+HIBANA.Event = function ( rate, magnitude ) {
 	this.rate = rate;
-	this.magnitude = new HIBANA.Range( magnitude_min, magnitude_range );
+    if ( magnitude instanceof HIBANA.Range )
+        this.magnitude = magnitude;
+    else
+        this.magnitude = new HIBANA.Range( magnitude.min, magnitude.max );
 	this.overflow = 0;
 	this.time = new Date().getTime();
 	return this;
 };
-HIBANA.PeriodicEvent.prototype = {
+HIBANA.Event.prototype = {
 
-	constructor: HIBANA.PeriodicEvent,
+	constructor: HIBANA.Event,
 
 	resetTime: function () {
 		this.time = new Date().getTime();
@@ -99,24 +107,30 @@ HIBANA.PeriodicEvent.prototype = {
 		return this;
 	},
 
-	setMagnitudeMin: function ( magnitude_min ) {
-		this.magnitude.setMin( magnitude_min );
-		return this;
-	},
+    setMagnitude: function ( magnitude ) {
+        this.magnitude = magnitude;
+    },
 
-	setMagnitudeRange: function ( magnitude_range ) {
-		this.magnitude.setRange( magnitude_range );
-		return this;
-	},
-
-	doAccordingToRate: function ( func ) {
+	doAccordingToRate: function ( object, func ) {
 		var current_time = new Date().getTime();
 		var dt = current_time - this.time;
 		var iteration_count = Math.floor( dt * this.rate + this.overflow );
+        var time_per_iteration = dt / (iteration_count + 1.0);
 		this.overflow = (dt * this.rate + this.overflow) - iteration_count;
 		for ( var i = 0; i < iteration_count; i++ )
-			func( this.magnitude.randomValue() );
+			func( object, this.magnitude.getValue(), current_time - time_per_iteration * i );
 		this.time = current_time;
 		return this;
 	}
 };
+
+// JavaScript Clone code found on Keith Devens' blog, as written by him in collaboration with his readers
+HIBANA._clone = function ( obj ) {
+    if ( obj == null || typeof(obj) != 'object' )
+        return obj;
+    var temp = {};
+    for ( var key in obj )
+        temp[key] = HIBANA._clone( obj[key] );
+    return temp;
+};
+

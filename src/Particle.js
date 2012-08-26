@@ -28,30 +28,50 @@ THE SOFTWARE.
 */
 
 HIBANA.Particle = function ( parameters ) {
-	this.vertex = parameters.vertex;
-	this.vertex.copy( parameters.starting_position );
-	this.initial_color = parameters.color;
-	this.color = parameters.color;
-	this.age = 0;
-	this.life = parameters.life;
-	this.initial_velocity = parameters.initial_velocity;
-	this.velocity = parameters.initial_velocity;
-	this.normal_plane = parameters.initial_velocity.getNormalPlane();
+    parameters = parameters || {};
+    for ( p in parameters )
+        this[p] = parameters[p];
+    this.dead = true;
 };
 
 HIBANA.Particle.prototype = {
 
 	constructor: HIBANA.Particle,
 
-	age: function () {
-		
+    beBorn: function ( magnitude, current_time ) {
+        this.vertex.copy( this.parent._getBirthPosition() );
+        this.velocity = this.parent._getForce().multiplyScalar( magnitude );
+        this.life = this.parent._getLifespan();
+        this.last_time = current_time;
+        this.dead = false;
+    },
+
+	age: function ( current_time ) {
+
+        if ( this.dead )
+            return;
+
+        var dt = current_time - this.last_time;
+        this.life -= dt;
+        if ( this.life <= 0 ) {
+            this.die();
+        } else {
+            for ( m in this.behavior_mods )
+                this.behavior_mods[m].doModification( this );
+            if ( HIBANA.Universal.is_active )
+                this.velocity.addSelf( HIBANA.Universal.acceleration.clone().multiplyScalar(dt) );
+            this.vertex.addSelf( this.velocity );
+        }
+        this.last_time = current_time;
 	},
 
-	generateInitialVelocity: function() {
-	},
+    resetTime: function ( current_time ) {
+        this.last_time = current_time;
+    },
 
 	die: function () {
-		this.vertex.copy( this.home );	
-		this.color.copy( this.initial_color );
+        this.dead = true;
+		this.vertex.copy( this.hidden_point );
+		this.color.copy( this.color );
 	}
 };

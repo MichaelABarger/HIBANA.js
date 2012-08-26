@@ -29,13 +29,13 @@ THE SOFTWARE.
 
 var HIBANA = {
 
-	age: function () { HIBANA.Emitters.all( "age" ); },
+	age: function () { HIBANA.Emitters.allEmitters( "age" ); },
 	
 	Emitters: { 
 
 		ref: [],
 
-		all: function ( method_name, arg ) {
+		allEmitters: function ( method_name, arg ) {
 			for ( e in HIBANA.Emitters.ref )
 				HIBANA.Emitters.ref[e][method_name]( arg );
 		},
@@ -48,53 +48,14 @@ var HIBANA = {
 		
 		setDefaultParameters: function ( parameters ) {
 			for ( p in parameters )
-				HIBANA.Emitters._default_parameters[p] = HIBANA._clone( parameters[p] );
-		},
-
-		_defaultParameters: {
-			paused:			true,
-			particle_count:		2000,
-			spawn:			new HIBANA.PeriodicEvent( 0.75, 1.25, 0.0 )
-			particle_life_min:	new HIBANA.Range( 250, 250 ),
-			angle:			0.0,
-			jitter:			new HIBANA.PeriodicEvent( 0.0, 0.0, 0.0 ),
-			random:			new HIBANA.PeriodicEvent( 0.0, 0.0, 0.0 ),
-			waviness:		new HIBANA.PeriodicEvent( 0.0, 0.0, 0.0 ),
-			hidden_point:		new THREE.Vector3( -1000, -1000, -1000 ),
-			paused:			true,
-			particle_size:		new HIBANA.Range( 2.0, 0.0 ),
-			particle_color:		new THREE.Color( 0xFFFFFF ),
-			texture: 		(function () {
-				var canvas = document.createElement( 'canvas' );
-				canvas.width = 50;
-				canvas.height = 50;
-
-				var context = canvas.getContext( '2d' );
-				var gradient = context.createRadialGradient( canvas.width / 2, 
-						canvas.height / 2, 0, canvas.width / 2,
-						canvas.height / 2, canvas.width / 2 );
-				gradient.addColorStop( 0, 'rgba(255,255,255,1.0)' );
-				gradient.addColorStop( 0.15, 'rgba(255,255,255,.9)' );
-				gradient.addColorStop( 0.3, 'rgba(255,255,255,.6)' );
-				gradient.addColorStop( 0.5, 'rgba(255,255,255,.3)' );
-				gradient.addColorStop( 0.7, 'rgba(255,255,255,.1)' );
-				gradient.addColorStop( 1, 'rgba(0,0,0,0)' );
-
-				context.fillStyle = gradient;
-				context.fillRect( 0, 0, canvas.width, canvas.height );
-				
-				var texture = new THREE.Texture( canvas );
-				texture.needsUpdate = true;
-				
-				return texture;
-			}())
+				HIBANA.Emitter._default_parameters[p] = HIBANA._clone( parameters[p] );
 		}
 	},
 		
 		
 	Universal:	{
 
-		force: new THREE.Vector3( 0.0, -0.0095, 0.0 ),
+		acceleration: new THREE.Vector3( 0.0, -0.000985, 0.0 ),
 		
 		is_active: false,
 		
@@ -109,16 +70,5 @@ var HIBANA = {
 		deactivate: function() { HIBANA.Universal.is_active = false; },
 		
 		toggle: function() { HIBANA.Universal.is_active = !HIBANA.Universal.is_active; }
-	},
-	
-
-	// JavaScript Clone code found on Keith Devens' blog, as written by him in collaboration with his readers
-	_clone: function ( obj ) {
-		if ( obj == null || typeof(obj) != 'object' )	
-			return obj;
-		var temp = {};
-		for ( var key in obj )
-			temp[key] = HIBANA._clone( obj[key] );
-		return temp;
 	}
 };
