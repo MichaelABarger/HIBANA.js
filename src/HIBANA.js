@@ -1,4 +1,3 @@
-/*
 HIBANA.js (https://github.com/MichaelABarger/HIBANA.js/src/HIBANA.js)
 Part of the HIBANA.js open-source project, a WebGL particle engine for Three.js
 
@@ -29,13 +28,13 @@ THE SOFTWARE.
 
 var HIBANA = {
 
-	age: function () { HIBANA.Emitters.allEmitters( "age" ); },
+	age: function () { HIBANA.Emitters.all( "age" ); },
 	
 	Emitters: { 
 
 		ref: [],
 
-		allEmitters: function ( method_name, arg ) {
+		all: function ( method_name, arg ) {
 			for ( e in HIBANA.Emitters.ref )
 				HIBANA.Emitters.ref[e][method_name]( arg );
 		},
@@ -48,7 +47,43 @@ var HIBANA = {
 		
 		setDefaultParameters: function ( parameters ) {
 			for ( p in parameters )
-				HIBANA.Emitter._default_parameters[p] = HIBANA._clone( parameters[p] );
+				HIBANA.Emitters._default_parameters[p] = HIBANA._clone( parameters[p] );
+		},
+
+		_default_parameters: {
+			paused: true,
+			particle_count:	2000,
+			spawn:			new HIBANA.Event( 0.75, new HIBANA.Range(.05, .4)),
+			behavior_mods:  [],
+			particle_life:	new HIBANA.Range( 250, 250 ),
+			angle:			0.0,
+			hidden_point:	new THREE.Vector3( -1000, -1000, -1000 ),
+			particle_size:	new HIBANA.Range( 2.0, 0.0 ),
+			particle_color:	new HIBANA.Range( 0x0000FF, 0xFF0000 ),
+			texture: 		(function () {
+			    var canvas = document.createElement( 'canvas' );
+			    canvas.width = 50;
+			    canvas.height = 50;
+
+			    var context = canvas.getContext( '2d' );
+			    var gradient = context.createRadialGradient( canvas.width / 2,
+				canvas.height / 2, 0, canvas.width / 2,
+				canvas.height / 2, canvas.width / 2 );
+			    gradient.addColorStop( 0, 'rgba(255,255,255,1.0)' );
+			    gradient.addColorStop( 0.15, 'rgba(255,255,255,.9)' );
+			    gradient.addColorStop( 0.3, 'rgba(255,255,255,.6)' );
+			    gradient.addColorStop( 0.5, 'rgba(255,255,255,.3)' );
+			    gradient.addColorStop( 0.7, 'rgba(255,255,255,.1)' );
+			    gradient.addColorStop( 1, 'rgba(0,0,0,0)' );
+
+			    context.fillStyle = gradient;
+			    context.fillRect( 0, 0, canvas.width, canvas.height );
+
+			    var texture = new THREE.Texture( canvas );
+			    texture.needsUpdate = true;
+
+			    return texture;
+			}())
 		}
 	},
 		
@@ -59,11 +94,11 @@ var HIBANA = {
 		
 		is_active: false,
 		
-		set: function( force ) { HIBANA.Universal.force = force; },
+		set: function( acceleration ) { HIBANA.Universal.acceleration = acceleration; },
 
-		add: function( force ) { HIBANA.Universal.force.addSelf( force ); },
+		add: function( acceleration ) { HIBANA.Universal.acceleration.addSelf( acceleration ); },
 
-		remove: function( force ) { HIBANA.Universal.force.subSelf( force ); },
+		remove: function( acceleration ) { HIBANA.Universal.acceleration.subSelf( acceleration ); },
 		
 		activate: function() { HIBANA.Universal.is_active = true; },
 		

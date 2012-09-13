@@ -1,5 +1,6 @@
+
 /*
-HIBANAUtils.js (https://github.com/MichaelABarger/HIBANA.js/src/HIBANAUtils.js)
+Particles.js (https://github.com/MichaelABarger/HIBANA.js/src/Particles.js)
 Part of the HIBANA.js open-source project, a WebGL particle engine for Three.js
 
 @author Michael A Barger (mikebarger@gmail.com)
@@ -27,38 +28,41 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-THREE.Vector3.prototype.UNIT = new THREE.Vector3( 1, 1, 1 ).normalize();
-THREE.Vector3.prototype.getNormalPlane = function () {
-	var P = new THREE.Vector3().cross( this, this.clone().addSelf( this.UNIT ) ).normalize();
-	var Q = new THREE.Vector3().cross( P, this ).normalize();
-	return new HIBANA.NormalPlane( P, Q );
+HIBANA.Emitter.Particles = function ( particle_count, emitter ) {
+	this.ref = [];
+	this.particle_count = particle_count;
+	for ( var i = 0; i < particle_count; i++ )
+		this.ref.push( new HIBANA.Particle( {
+			vertex: emitter.geometry.vertices[v],
+			color:  emitter.geometry.colors[v],
+			hidden_point: emitter.hidden_point,
+			geo: emitter.bound_geometry,
+			parent: emitter
+		}));
 };
+HIBANA.Emitter.Particles.prototype = {
 
-HIBANA.NormalPlane = function ( P, Q ) {
-	this.P = P;
-	this.Q = Q;
-	return this;
-};
-HIBANA.NormalPlane.prototype = {
+	constructor: HIBANA.Emitter.Particles,
 
-	constructor:	HIBANA.NormalPlane,
-	
-	randomVector:	function ( factor ) {	
-		var P = this.P;
-		var Q = this.Q;
-		P.multiplyScalar( Math.random() * factor - factor / 2.0 );
-		Q.multiplyScalar( Math.random() * factor - factor / 2.0 );
-		return new THREE.Vector3().add( P, Q );
+	ref: [],
+
+	next_particle: 0,
+
+	all: function ( method_name, arg ) {
+		for ( p in this.ref )
+			this.ref[p][method_name]( arg );
+	},
+
+	age: function () {
+		var current_time = new Date().getTime();
+		for ( p in this.ref )
+			this.ref[p].age( current_time );
+	},
+
+	getNext: function () {
+		var result = this.ref[ this.next_particle ];
+		if ( ++this.next_particle >= this.particle_count )
+			this.next_particle = 0;
+		return result;
 	}
 };
-
-// JavaScript Clone code found on Keith Devens' blog, as written by him in collaboration with his readers
-HIBANA._clone = function ( obj ) {
-    if ( obj == null || typeof(obj) != 'object' )
-        return obj;
-    var temp = {};
-    for ( var key in obj )
-        temp[key] = HIBANA._clone( obj[key] );
-    return temp;
-};
-

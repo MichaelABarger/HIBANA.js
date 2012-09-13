@@ -1,5 +1,5 @@
 /*
-HIBANAUtils.js (https://github.com/MichaelABarger/HIBANA.js/src/HIBANAUtils.js)
+Range.js (https://github.com/MichaelABarger/HIBANA.js/src/Range.js)
 Part of the HIBANA.js open-source project, a WebGL particle engine for Three.js
 
 @author Michael A Barger (mikebarger@gmail.com)
@@ -27,38 +27,35 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-THREE.Vector3.prototype.UNIT = new THREE.Vector3( 1, 1, 1 ).normalize();
-THREE.Vector3.prototype.getNormalPlane = function () {
-	var P = new THREE.Vector3().cross( this, this.clone().addSelf( this.UNIT ) ).normalize();
-	var Q = new THREE.Vector3().cross( P, this ).normalize();
-	return new HIBANA.NormalPlane( P, Q );
-};
 
-HIBANA.NormalPlane = function ( P, Q ) {
-	this.P = P;
-	this.Q = Q;
+HIBANA.Range = function ( min, max ) {
+	this.min = min;
+    this.max = Math.max( min, max );
+    this._recalculateRange();
 	return this;
 };
-HIBANA.NormalPlane.prototype = {
-
-	constructor:	HIBANA.NormalPlane,
+HIBANA.Range.prototype = {
 	
-	randomVector:	function ( factor ) {	
-		var P = this.P;
-		var Q = this.Q;
-		P.multiplyScalar( Math.random() * factor - factor / 2.0 );
-		Q.multiplyScalar( Math.random() * factor - factor / 2.0 );
-		return new THREE.Vector3().add( P, Q );
-	}
-};
+	constructor:	HIBANA.Range,
 
-// JavaScript Clone code found on Keith Devens' blog, as written by him in collaboration with his readers
-HIBANA._clone = function ( obj ) {
-    if ( obj == null || typeof(obj) != 'object' )
-        return obj;
-    var temp = {};
-    for ( var key in obj )
-        temp[key] = HIBANA._clone( obj[key] );
-    return temp;
+	getValue: 	function () {
+		return this.min + Math.random() * this.range;
+	},
+
+	setMin:		function ( min ) {
+		this.min = min;
+        this._recalculateRange();
+		return this;
+	},
+
+	setMax: 	function ( max ) {
+		this.max = Math.max( max, this.min );
+        this._recalculateRange();
+        return this;
+	},
+
+    _recalculateRange: function () {
+        this.range = this.max - this.min;
+    }
 };
 

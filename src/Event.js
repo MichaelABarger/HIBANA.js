@@ -1,5 +1,5 @@
 /*
-HIBANAUtils.js (https://github.com/MichaelABarger/HIBANA.js/src/HIBANAUtils.js)
+Event.js (https://github.com/MichaelABarger/HIBANA.js/src/Event.js)
 Part of the HIBANA.js open-source project, a WebGL particle engine for Three.js
 
 @author Michael A Barger (mikebarger@gmail.com)
@@ -27,38 +27,44 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-THREE.Vector3.prototype.UNIT = new THREE.Vector3( 1, 1, 1 ).normalize();
-THREE.Vector3.prototype.getNormalPlane = function () {
-	var P = new THREE.Vector3().cross( this, this.clone().addSelf( this.UNIT ) ).normalize();
-	var Q = new THREE.Vector3().cross( P, this ).normalize();
-	return new HIBANA.NormalPlane( P, Q );
-};
-
-HIBANA.NormalPlane = function ( P, Q ) {
-	this.P = P;
-	this.Q = Q;
+HIBANA.Event = function ( rate, magnitude ) {
+	this.rate = rate;
+    if ( magnitude instanceof HIBANA.Range )
+        this.magnitude = magnitude;
+    else
+        this.magnitude = new HIBANA.Range( magnitude.min, magnitude.max );
+	this.overflow = 0;
+	this.time = new Date().getTime();
 	return this;
 };
-HIBANA.NormalPlane.prototype = {
+HIBANA.Event.prototype = {
 
-	constructor:	HIBANA.NormalPlane,
-	
-	randomVector:	function ( factor ) {	
-		var P = this.P;
-		var Q = this.Q;
-		P.multiplyScalar( Math.random() * factor - factor / 2.0 );
-		Q.multiplyScalar( Math.random() * factor - factor / 2.0 );
-		return new THREE.Vector3().add( P, Q );
+	constructor: HIBANA.Event,
+
+	resetTime: function () {
+		this.time = new Date().getTime();
+		return this;
+	},
+
+	setRate: function ( rate ) {
+		this.rate = rate;
+		return this;
+	},
+
+	setMagnitude: function ( magnitude ) {
+		this.magnitude = magnitude;
+	},
+
+	doAccordingToRate: function ( object, func ) {
+		var current_time = new Date().getTime();
+		var dt = current_time - this.time;
+		var iteration_count = Math.floor( dt * this.rate + this.overflow );
+		var time_per_iteration = dt / (iteration_count + 1.0);
+		this.overflow = (dt * this.rate + this.overflow) - iteration_count;
+		for ( var i = 0; i < iteration_count; i++ )
+			func( object, this.magnitude.getValue(), current_time - time_per_iteration * i );
+		this.time = current_time;
+		return this;
 	}
-};
-
-// JavaScript Clone code found on Keith Devens' blog, as written by him in collaboration with his readers
-HIBANA._clone = function ( obj ) {
-    if ( obj == null || typeof(obj) != 'object' )
-        return obj;
-    var temp = {};
-    for ( var key in obj )
-        temp[key] = HIBANA._clone( obj[key] );
-    return temp;
 };
 

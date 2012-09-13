@@ -39,7 +39,7 @@ HIBANA.Emitter = function ( object, parameters ) {
 
     parameters = parameters || {};
 	for ( p in HIBANA.Emitters._defaultParameters )
-		this[p] = HIBANA.Emitters._defaultParameters[p];
+		this[p] = HIBANA._clone( HIBANA.Emitters._default_parameters[p] );
 	for ( p in parameters )
 		this[p] = HIBANA._clone(parameters[p]);
     this.spawn = HIBANA._clone( this.spawn );
@@ -63,38 +63,26 @@ HIBANA.Emitter.prototype = {
 	constructor: HIBANA.Emitter,
 
 	clear: function() {
-        for ( var p in this.particles )
-            this.particles[p].die();
+		this.particles.all( "die" );
 	},
 
 	age: function () {
 		if ( this.paused ) return this;
 
-	    this.spawn.doAccordingToRate( this, function( that, magnitude, t ) {
+		this.spawn.doAccordingToRate( this, function( that, magnitude, t ) {
+			that.particles.getNext().beBorn( magnitude, t );
+		});
 
-            that.particles[that.next_particle].beBorn( magnitude, t );
-
-            if ( ++that.next_particle >= that.particle_count )
-                that.next_particle = 0;
-        });
-
-        var current_time = new Date().getTime();
-        for ( var p in this.particles )
-            this.particles[p].age( current_time );
+		this.particles.age();
 
 		this.geometry.verticesNeedUpdate = true;
 		this.geometry.colorsNeedUpdate = true;
 		return this;
 	},
 
-    addBehaviorModifier: function( modifier ) {
-        this.behavior_mods.push( modifier );
-    },
-
-    allParticles: function( method_name, arg ) {
-        for ( p in this.particles )
-		    this.particles[p][method_name]( arg );
-    },
+	addBehaviorModifier: function( modifier ) {
+		this.behavior_mods.push( modifier );
+	},
 
 	pause: function () { this.paused = true; return this; },
 	play: function () { 
@@ -111,51 +99,9 @@ HIBANA.Emitter.prototype = {
         this.allParticles( "resetTime", current_time );
 		return this;
 	},
-//
-//	setParticleColor: function ( particle_color ) {
-//		this.particle_color = particle_color;
-//		this._makeMaterial();
-//		this.system.material = this.material;
-//		return this;
-//	},
-//	setParticleTexture: function ( texture ) {
-//		this.texture = texture;
-//		this._makeMaterial();
-//		this.system.material = this.material;
-//		return this;
-//	},
-//	setParticleSize: function ( particle_size ) {
-//		this.particle_size = particle_size;
-//		this._makeMaterial();
-//		this.system.material = this.material;
-//		return this;
-//	},
-//	setParticleLifetimeMin: function ( min ) { this.particle_life_min = min * 1000; return this; },
-//	setParticleLifetimeRange: function ( range ) { this.particle_life_range = range * 1000; return this; },
-//
-//	setRate: function ( particles_per_second ) {
-//		this.rate = particles_per_second / 1000.0;
-//		return this;
-//       	},
-//	setAngle: function ( angle ) {
-//		this.angle = angle;
-//		this._generateInitialVelocities();
-//		return this;
-//	},
-//	setForceMin: function ( feet_per_second ) {
-//		this.force_min = feet_per_second / 1000.0;
-//		this._generateInitialVelocities();
-//		return this;
-//	},
-//	setForceRange: function ( feet_per_second ) {
-//		this.force_range = feet_per_second / 1000.0;
-//		this._generateInitialVelocities();
-//		return this;
-//	},
 
     _initializeParticles: function () {
-        this.particles = [];
-        this.next_particle = 0;
+        this.particles = new HIBANA.Emitter.Particles( this.particle_count, this );
         this.geometry = new THREE.Geometry();
         this.geometry.colors = [];
         for ( var i = 0; i < this.particle_count; i++ ) {
@@ -163,15 +109,6 @@ HIBANA.Emitter.prototype = {
             this.geometry.colors.push( new THREE.Color( this.particle_color.getValue() ) );
         }
         this.geometry.dynamic = true;
-        for ( var v in this.geometry.vertices )  {
-            this.particles.push( new HIBANA.Particle( {
-                vertex: this.geometry.vertices[v],
-                color:  this.geometry.colors[v],
-                hidden_point: this.hidden_point,
-                geo: this.bound_geometry,
-                parent: this
-            }));
-        }
     },
 
     _getBirthPosition: function () {
@@ -210,39 +147,4 @@ HIBANA.Emitter.prototype = {
 	}
 };
 
-HIBANA.Emitters._defaultParameters = {
-        paused: true,
-        particle_count:	2000,
-        spawn:			new HIBANA.Event( 0.75, new HIBANA.Range(.05, .4)),
-        behavior_mods:  [],
-        particle_life:	new HIBANA.Range( 250, 250 ),
-        angle:			0.0,
-        hidden_point:	new THREE.Vector3( -1000, -1000, -1000 ),
-        particle_size:	new HIBANA.Range( 2.0, 0.0 ),
-        particle_color:	new HIBANA.Range( 0x0000FF, 0xFF0000 ),
-        texture: 		(function () {
-            var canvas = document.createElement( 'canvas' );
-            canvas.width = 50;
-            canvas.height = 50;
-
-            var context = canvas.getContext( '2d' );
-            var gradient = context.createRadialGradient( canvas.width / 2,
-                canvas.height / 2, 0, canvas.width / 2,
-                canvas.height / 2, canvas.width / 2 );
-            gradient.addColorStop( 0, 'rgba(255,255,255,1.0)' );
-            gradient.addColorStop( 0.15, 'rgba(255,255,255,.9)' );
-            gradient.addColorStop( 0.3, 'rgba(255,255,255,.6)' );
-            gradient.addColorStop( 0.5, 'rgba(255,255,255,.3)' );
-            gradient.addColorStop( 0.7, 'rgba(255,255,255,.1)' );
-            gradient.addColorStop( 1, 'rgba(0,0,0,0)' );
-
-            context.fillStyle = gradient;
-            context.fillRect( 0, 0, canvas.width, canvas.height );
-
-            var texture = new THREE.Texture( canvas );
-            texture.needsUpdate = true;
-
-            return texture;
-        }())
-};
 
