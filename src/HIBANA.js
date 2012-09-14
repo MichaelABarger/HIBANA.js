@@ -1,3 +1,4 @@
+/*
 HIBANA.js (https://github.com/MichaelABarger/HIBANA.js/src/HIBANA.js)
 Part of the HIBANA.js open-source project, a WebGL particle engine for Three.js
 
