@@ -52,38 +52,10 @@ var HIBANA = {
 
 		_default_parameters: {
 			paused: true,
-			particle_count:	2000,
-			spawn:			new HIBANA.Event( 0.75, new HIBANA.Range(.05, .4)),
-			behavior_mods:  [],
-			particle_life:	new HIBANA.Range( 250, 250 ),
-			angle:			0.0,
-			hidden_point:	new THREE.Vector3( -1000, -1000, -1000 ),
-			particle_size:	new HIBANA.Range( 2.0, 0.0 ),
-			particle_color:	new HIBANA.Range( 0x0000FF, 0xFF0000 ),
-			texture: 		(function () {
-			    var canvas = document.createElement( 'canvas' );
-			    canvas.width = 50;
-			    canvas.height = 50;
-
-			    var context = canvas.getContext( '2d' );
-			    var gradient = context.createRadialGradient( canvas.width / 2,
-				canvas.height / 2, 0, canvas.width / 2,
-				canvas.height / 2, canvas.width / 2 );
-			    gradient.addColorStop( 0, 'rgba(255,255,255,1.0)' );
-			    gradient.addColorStop( 0.15, 'rgba(255,255,255,.9)' );
-			    gradient.addColorStop( 0.3, 'rgba(255,255,255,.6)' );
-			    gradient.addColorStop( 0.5, 'rgba(255,255,255,.3)' );
-			    gradient.addColorStop( 0.7, 'rgba(255,255,255,.1)' );
-			    gradient.addColorStop( 1, 'rgba(0,0,0,0)' );
-
-			    context.fillStyle = gradient;
-			    context.fillRect( 0, 0, canvas.width, canvas.height );
-
-			    var texture = new THREE.Texture( canvas );
-			    texture.needsUpdate = true;
-
-			    return texture;
-			}())
+			spawn:	new HIBANA.Event( 0.75, new HIBANA.Range(.05, .4)),
+			behavior_mods:  [], 
+			angle:	0.0,
+			hidden_point:	new THREE.Vector3( -1000, -1000, -1000 )
 		}
 	},
 		
